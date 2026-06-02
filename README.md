@@ -1,3 +1,4 @@
+ls
 # CRIATTO — Site de Camisas Personalizadas
 
 ## 🚀 Como rodar
