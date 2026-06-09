@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState,useRef,useCallback,Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
@@ -571,10 +571,18 @@ ${finalArtUrl}`
     PRÉ-VISUALIZAÇÃO 3D
   </h3>
 
+  <Suspense
+  fallback={
+    <div className="w-full h-[650px] rounded-xl bg-dark-700 flex items-center justify-center text-white/30 text-sm">
+      Carregando modelo 3D...
+    </div>
+  }
+>
   <Shirt3D
-  color={shirtColor}
-  image={currentArt}
-/>
+    color={shirtColor}
+    image={currentArt}
+  />
+</Suspense>
 </div>
 
             {/* Order form */}
