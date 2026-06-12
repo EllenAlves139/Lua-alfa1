@@ -77,7 +77,7 @@ export default function ContactPage() {
               value="+55 (32) 99852-1595"
               href="https://wa.me/32984521595?text=Olá! Vim pelo site da CRIATTO e gostaria de mais informações."
             />
-            <InfoCard icon={<MapPin size={20} />} label="Localização" value="Centro, 999, Muriaé-Mg" />
+            <InfoCard icon={<MapPin size={20} />} label="Localização" value="Centro, 147, Muriaé-Mg" />
 
             <div className="glass-card p-6">
               <p className="text-white/30 text-xs font-mono uppercase tracking-widest mb-4">Horário de atendimento</p>
