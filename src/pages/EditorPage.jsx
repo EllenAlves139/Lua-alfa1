@@ -1,5 +1,4 @@
-import { useState,useRef,useCallback,Suspense } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import {
@@ -7,9 +6,10 @@ import {
   ChevronLeft, ChevronRight, Wand2, RefreshCw, Check, Loader2
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { HexColorPicker } from "react-colorful"
 import Shirt3D from '../components/Shirt3D'
-import { HexColorPicker } from "react-colorful";
 
+// Cores, tamanhos...
 const SHIRT_COLORS = [
   { hex: '#FFFFFF', label: 'Branco' },
   { hex: '#F5F5F0', label: 'Off-white' },
@@ -27,10 +27,11 @@ const SHIRT_COLORS = [
 
 const SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG']
 
-const POSITIONS = [
-  { id: 'front', label: 'Frente' },
-  { id: 'back', label: 'Costas' },
-  { id: 'sleeve', label: 'Manga' },
+// ─── MODELOS 3D DISPONÍVEIS ───
+const MODELS = [
+  { id: 'tshirt', name: 'Camiseta', path: '/models/tshirt-mannequin.glb', icon: '👕' },
+  { id: 'hoodie', name: 'Moletom com Capuz', path: '/models/hoodie_with_hood_up.glb', icon: '🧥' },
+  { id: 'sweatshirt', name: 'Moletom', path: '/models/sweatshirt_warm.glb', icon: '🧶' },
 ]
 
 const AI_STYLES = [
@@ -58,47 +59,37 @@ const AI_ELEMENTS = [
 ]
 
 const MODES = [
-  { id: 'ready', label: 'Designs Prontos', icon: <LayoutGrid size={16} /> },
   { id: 'upload', label: 'Upload de Arte', icon: <Upload size={16} /> },
   { id: 'ai', label: 'IA Generativa', icon: <Sparkles size={16} /> },
 ]
 
-const SAMPLE_DESIGNS = [
-  { id: '1', name: 'Urban Lines', category: 'Urbano', img: '/estampas/urban-lines.webp' },
-  { id: '2', name: 'Minimal Logo', category: 'Minimalista', img: '/estampas/minimal-logo.webp' },
-  { id: '3', name: 'Street Art', category: 'Streetwear', img: '/estampas/street-art.webp' },
-  { id: '4', name: 'Corporate Pro', category: 'Corporativo', img: '/estampas/corporate-pro.webp' },
-  { id: '5', name: 'Nature Vibes', category: 'Natureza', img: '/estampas/nature-vibes.webp' },
-  { id: '6', name: 'Retro Wave', category: 'Retrô', img: '/estampas/retro-wave.png' },
-]
-
 const AI_GENERATED_SAMPLES = [
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
+  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
+  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
+  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
 ]
 
 export default function EditorPage() {
-  const [searchParams] = useSearchParams()
-  const [mode, setMode] = useState('ready')
+  // ─── ESTADOS ───
+  const [mode, setMode] = useState('upload')
   const [shirtColor, setShirtColor] = useState('#FFFFFF')
   const [size, setSize] = useState('M')
-  const [position, setPosition] = useState('front')
-  const [selectedDesign, setSelectedDesign] = useState(null)
+  const [selectedModel, setSelectedModel] = useState(MODELS[0])
   const [uploadedImage, setUploadedImage] = useState(null)
+  const [stampScale, setStampScale] = useState(30)
   const [aiStyle, setAiStyle] = useState([])
   const [aiElements, setAiElements] = useState([])
   const [aiResult, setAiResult] = useState(null)
   const [aiGenerating, setAiGenerating] = useState(false)
   const [ordering, setOrdering] = useState(false)
   const [orderDone, setOrderDone] = useState(false)
-  const [quantity, setQuantity] = useState(1)
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [showOrderForm, setShowOrderForm] = useState(false)
 
+  // ─── DROPZONE ───
   const onDrop = useCallback(files => {
     const file = files[0]
     if (!file) return
@@ -113,12 +104,9 @@ export default function EditorPage() {
     maxFiles: 1,
   })
 
-  const currentArt = mode === 'ready'
-    ? selectedDesign?.img
-    : mode === 'upload'
-    ? uploadedImage
-    : aiResult
+  const currentArt = mode === 'upload' ? uploadedImage : aiResult
 
+  // ─── IA ───
   function toggleAiStyle(id) {
     setAiStyle(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
@@ -134,12 +122,10 @@ export default function EditorPage() {
     }
     setAiGenerating(true)
     setAiResult(null)
-    // Simulate AI generation (2s delay + pick random sample)
     await new Promise(r => setTimeout(r, 2200))
     const sample = AI_GENERATED_SAMPLES[Math.floor(Math.random() * AI_GENERATED_SAMPLES.length)]
     setAiResult(sample)
 
-    // Save to Supabase
     await supabase.from('ai_generations').insert({
       style: aiStyle.join(', '),
       elements: aiElements,
@@ -159,28 +145,22 @@ export default function EditorPage() {
     toast('Combinação aleatória selecionada ✨')
   }
 
-  // 1. FUNÇÃO AUXILIAR PARA SUBIR O BASE64 PARA O SUPABASE STORAGE
+  // ─── UPLOAD PARA SUPABASE ───
   async function uploadImageToSupabase(base64Data) {
     try {
-      // Converte o Base64 temporário num arquivo real (Blob)
       const response = await fetch(base64Data)
       const blob = await response.blob()
-      
       const fileExt = blob.type.split('/')[1] || 'png'
       const fileName = `design-${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
-      
-      // Faz o upload para o bucket público que criou
-      const { data, error } = await supabase.storage
+
+      const { error } = await supabase.storage
         .from('camisas-artes')
         .upload(fileName, blob)
-
       if (error) throw error
 
-      // Pega a URL pública gerada
       const { data: publicUrlData } = supabase.storage
         .from('camisas-artes')
         .getPublicUrl(fileName)
-
       return publicUrlData.publicUrl
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error)
@@ -188,7 +168,7 @@ export default function EditorPage() {
     }
   }
 
-  // 2. NOVA FUNÇÃO DE PEDIDO ATUALIZADA
+  // ─── PEDIDO ───
   async function handleOrder() {
     if (!customerName || !customerEmail) {
       toast.error('Preencha nome e e-mail')
@@ -203,7 +183,6 @@ export default function EditorPage() {
 
     let finalArtUrl = currentArt
 
-    // Se o cliente fez upload de uma arte local (Base64), enviamos para o Storage primeiro
     if (mode === 'upload' && uploadedImage) {
       const uploadedUrl = await uploadImageToSupabase(uploadedImage)
       if (uploadedUrl) {
@@ -217,22 +196,22 @@ export default function EditorPage() {
 
     const designData = {
       mode,
+      model: selectedModel.id,
       art: finalArtUrl || null,
-      designName: mode === 'ready' ? selectedDesign?.name : mode === 'ai' ? `IA: ${aiStyle.join('+')}` : 'Upload personalizado',
+      designName: mode === 'ai' ? `IA: ${aiStyle.join('+')}` : 'Upload personalizado',
     }
 
-    // Salva o pedido na Base de Dados com o link final da imagem
     const { error } = await supabase.from('orders').insert({
       customer_name: customerName,
       customer_email: customerEmail,
       customer_phone: customerPhone || null,
-      design_type: mode === 'ready' ? 'ready' : mode === 'upload' ? 'upload' : 'ai',
+      design_type: mode === 'upload' ? 'upload' : 'ai',
       design_data: designData,
       shirt_color: shirtColor,
       shirt_size: size,
-      quantity,
-      position,
-      total_price: quantity * 59.9,
+      quantity: 1,
+      position: 'front',
+      total_price: 59.9,
     })
 
     setOrdering(false)
@@ -242,14 +221,10 @@ export default function EditorPage() {
       return
     }
 
-    // ─── CONFIGURAÇÃO DO WHATSAPP COM PRÉVIA VISUAL ───
-    
-    const numWhatsEmpresa = "5532984521595" // Código do país (55) + DDD + Número
+    const numWhatsEmpresa = "5532984521595"
     const corLabel = SHIRT_COLORS.find(c => c.hex === shirtColor)?.label || shirtColor
-    const posicaoLabel = POSITIONS.find(p => p.id === position)?.label || position
-    const totalFormatado = (quantity * 59.9).toFixed(2).replace('.', ',')
+    const totalFormatado = '59,90'
 
-    // Montando a mensagem estruturada
     const textoMensagem = `Olá! Acabei de fazer um pedido personalizado pelo site:
 
 👤 *DADOS DO CLIENTE:*
@@ -258,11 +233,11 @@ export default function EditorPage() {
 • WhatsApp: ${customerPhone || 'Não informado'}
 
 👕 *DETALHES DA CAMISA:*
-• Modelo/Arte: ${designData.designName}
+• Modelo: ${selectedModel.name}
+• Arte: ${designData.designName}
 • Cor da Camisa: ${corLabel}
 • Tamanho: ${size}
-• Posição da Estampa: ${posicaoLabel}
-• Quantidade: ${quantity} unidade(s)
+• Quantidade: 1 unidade
 
 💰 *VALOR TOTAL:*
 • *R$ ${totalFormatado}*
@@ -270,14 +245,10 @@ export default function EditorPage() {
 🖼️ *FOTO DA ESTAMPA SELECIONADA:*
 ${finalArtUrl}`
 
-    // Codifica o texto para formato de URL segura
     const textoCodificado = encodeURIComponent(textoMensagem)
     const urlWhatsapp = `https://wa.me/${numWhatsEmpresa}?text=${textoCodificado}`
 
-    // Abre o WhatsApp numa nova aba
     window.open(urlWhatsapp, '_blank')
-
-    // ──────────────────────────────────────────────────
 
     setOrderDone(true)
     setShowOrderForm(false)
@@ -293,7 +264,7 @@ ${finalArtUrl}`
           </div>
           <h2 className="font-display text-5xl tracking-wider mb-4">PEDIDO ENVIADO!</h2>
           <p className="text-white/50 mb-8">Recebemos seu pedido e entraremos em contato em breve.</p>
-          <button onClick={() => { setOrderDone(false); setSelectedDesign(null); setUploadedImage(null); setAiResult(null) }} className="btn-gold">
+          <button onClick={() => { setOrderDone(false); setUploadedImage(null); setAiResult(null) }} className="btn-gold">
             Criar outro
           </button>
         </div>
@@ -333,33 +304,29 @@ ${finalArtUrl}`
           {/* ── LEFT PANEL ── */}
           <div className="space-y-6">
 
-            {/* Mode: Ready Designs */}
-            {mode === 'ready' && (
-              <div className="glass-card p-6">
-                <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ESCOLHER DESIGN</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {SAMPLE_DESIGNS.map(d => (
-                    <button
-                      key={d.id}
-                      onClick={() => setSelectedDesign(d)}
-                      className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all ${
-                        selectedDesign?.id === d.id ? 'border-gold-400 scale-105' : 'border-transparent hover:border-white/20'
-                      }`}
-                    >
-                      <img src={d.img} alt={d.name} className="w-full h-full object-cover" />
-                      {selectedDesign?.id === d.id && (
-                        <div className="absolute inset-0 bg-gold-400/20 flex items-center justify-center">
-                          <Check size={20} className="text-gold-400" />
-                        </div>
-                      )}
-                      <div className="absolute bottom-0 inset-x-0 bg-dark-900/80 py-1 px-2">
-                        <p className="text-white text-[10px] font-mono truncate">{d.name}</p>
+            {/* ─── ESCOLHER MODELO ─── */}
+            <div className="glass-card p-6">
+              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ESCOLHER MODELO</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {MODELS.map(model => (
+                  <button
+                    key={model.id}
+                    onClick={() => setSelectedModel(model)}
+                    className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all bg-dark-600 flex flex-col items-center justify-center ${
+                      selectedModel?.id === model.id ? 'border-gold-400 scale-105' : 'border-transparent hover:border-white/20'
+                    }`}
+                  >
+                    <span className="text-5xl mb-2">{model.icon}</span>
+                    <span className="text-white text-xs font-mono tracking-wider text-center px-1">{model.name}</span>
+                    {selectedModel?.id === model.id && (
+                      <div className="absolute inset-0 bg-gold-400/20 flex items-center justify-center">
+                        <Check size={20} className="text-gold-400" />
                       </div>
-                    </button>
-                  ))}
-                </div>
+                    )}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Mode: Upload */}
             {mode === 'upload' && (
@@ -386,9 +353,22 @@ ${finalArtUrl}`
                   )}
                 </div>
                 {uploadedImage && (
-                  <button onClick={() => setUploadedImage(null)} className="mt-3 text-white/30 hover:text-red-400 text-xs flex items-center gap-1 transition-colors">
-                    <RotateCcw size={12} /> Remover
-                  </button>
+                  <>
+                    <button onClick={() => setUploadedImage(null)} className="mt-3 text-white/30 hover:text-red-400 text-xs flex items-center gap-1 transition-colors">
+                      <RotateCcw size={12} /> Remover
+                    </button>
+                    <div className="mt-4">
+                      <label className="text-white/40 text-xs block mb-1">Tamanho da estampa: {stampScale}%</label>
+                      <input
+                        type="range"
+                        min="10"
+                        max="80"
+                        value={stampScale}
+                        onChange={(e) => setStampScale(Number(e.target.value))}
+                        className="w-full accent-gold-400"
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -450,69 +430,43 @@ ${finalArtUrl}`
               </div>
             )}
 
-            {/* Shirt Options */}
+            {/* Shirt Options (apenas cor e tamanho) */}
             <div className="glass-card p-6">
               <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">CONFIGURAÇÕES</h3>
 
               {/* Color */}
-<div className="mb-5">
-  <p className="text-white/50 text-sm mb-3">
-    Cor da camisa
-  </p>
-
-  <div className="flex flex-wrap gap-2 mb-4">
-    {SHIRT_COLORS.map(c => (
-      <button
-        key={c.hex}
-        title={c.label}
-        onClick={() => setShirtColor(c.hex)}
-        className={`w-7 h-7 rounded-full border-2 transition-all hover:scale-125 ${
-          shirtColor === c.hex
-            ? 'border-gold-400 scale-125'
-            : 'border-transparent'
-        }`}
-        style={{
-          backgroundColor: c.hex,
-          boxShadow:
-            c.hex === '#FFFFFF'
-              ? 'inset 0 0 0 1px rgba(255,255,255,0.1)'
-              : 'none'
-        }}
-      />
-    ))}
-  </div>
-
-  <div className="flex justify-center mb-4">
-    <HexColorPicker
-      color={shirtColor}
-      onChange={setShirtColor}
-    />
-  </div>
-
-  <input
-    type="text"
-    value={shirtColor}
-    onChange={(e) => setShirtColor(e.target.value)}
-    placeholder="#FFFFFF"
-    className="
-      w-full
-      bg-dark-600
-      border
-      border-white/10
-      rounded-xl
-      px-4
-      py-3
-      text-sm
-      text-white
-      placeholder-white/30
-      focus:outline-none
-      focus:border-gold-400/50
-    "
-  />
-</div>
+              <div className="mb-5">
+                <p className="text-white/50 text-sm mb-3">Cor da camisa</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {SHIRT_COLORS.map(c => (
+                    <button
+                      key={c.hex}
+                      title={c.label}
+                      onClick={() => setShirtColor(c.hex)}
+                      className={`w-7 h-7 rounded-full border-2 transition-all hover:scale-125 ${
+                        shirtColor === c.hex ? 'border-gold-400 scale-125' : 'border-transparent'
+                      }`}
+                      style={{
+                        backgroundColor: c.hex,
+                        boxShadow: c.hex === '#FFFFFF' ? 'inset 0 0 0 1px rgba(255,255,255,0.1)' : 'none'
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-center mb-4">
+                  <HexColorPicker color={shirtColor} onChange={setShirtColor} />
+                </div>
+                <input
+                  type="text"
+                  value={shirtColor}
+                  onChange={(e) => setShirtColor(e.target.value)}
+                  placeholder="#FFFFFF"
+                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50"
+                />
+              </div>
 
               {/* Size */}
-              <div className="mb-5">
+              <div>
                 <p className="text-white/50 text-sm mb-3">Tamanho</p>
                 <div className="flex gap-2">
                   {SIZES.map(s => (
@@ -528,62 +482,22 @@ ${finalArtUrl}`
                   ))}
                 </div>
               </div>
-
-              {/* Position */}
-              <div className="mb-5">
-                <p className="text-white/50 text-sm mb-3">Posição da estampa</p>
-                <div className="flex gap-2">
-                  {POSITIONS.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPosition(p.id)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all ${
-                        position === p.id ? 'bg-gold-400 text-dark-900' : 'border border-white/10 text-white/50 hover:border-gold-400/40'
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <p className="text-white/50 text-sm mb-3">Quantidade</p>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-9 h-9 rounded-full border border-white/10 text-white/50 hover:border-gold-400 hover:text-gold-400 transition-all flex items-center justify-center">
-                    <ChevronLeft size={16} />
-                  </button>
-                  <span className="font-display text-2xl w-8 text-center">{quantity}</span>
-                  <button onClick={() => setQuantity(q => q+1)} className="w-9 h-9 rounded-full border border-white/10 text-white/50 hover:border-gold-400 hover:text-gold-400 transition-all flex items-center justify-center">
-                    <ChevronRight size={16} />
-                  </button>
-                  <span className="text-white/30 text-sm ml-2">× R$ 59,90 = <strong className="text-gold-400">R$ {(quantity * 59.9).toFixed(2).replace('.', ',')}</strong></span>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* ── RIGHT PANEL: Preview ── */}
           <div className="space-y-6">
             <div className="glass-card p-6">
-  <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">
-    PRÉ-VISUALIZAÇÃO 3D
-  </h3>
-
-  <Suspense
-  fallback={
-    <div className="w-full h-[650px] rounded-xl bg-dark-700 flex items-center justify-center text-white/30 text-sm">
-      Carregando modelo 3D...
-    </div>
-  }
->
-  <Shirt3D
-    color={shirtColor}
-    image={currentArt}
-  />
-</Suspense>
-</div>
+              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">
+                PRÉ-VISUALIZAÇÃO 3D
+              </h3>
+              <Shirt3D
+                color={shirtColor}
+                image={currentArt}
+                scale={stampScale}
+                modelPath={selectedModel.path}
+              />
+            </div>
 
             {/* Order form */}
             {!showOrderForm ? (
@@ -591,7 +505,7 @@ ${finalArtUrl}`
                 onClick={() => setShowOrderForm(true)}
                 className="w-full btn-gold flex items-center justify-center gap-2 py-4 text-base animate-glow-pulse"
               >
-                <ShoppingBag size={18} /> Fazer Pedido · R$ {(quantity * 59.9).toFixed(2).replace('.', ',')}
+                <ShoppingBag size={18} /> Fazer Pedido · R$ 59,90
               </button>
             ) : (
               <div className="glass-card p-6 space-y-4">
@@ -608,6 +522,13 @@ ${finalArtUrl}`
                   placeholder="Seu e-mail *"
                   value={customerEmail}
                   onChange={e => setCustomerEmail(e.target.value)}
+                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
+                />
+                <input
+                  type="tel"
+                  placeholder="Seu WhatsApp (opcional)"
+                  value={customerPhone}
+                  onChange={e => setCustomerPhone(e.target.value)}
                   className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
                 />
                 <div className="flex gap-3">

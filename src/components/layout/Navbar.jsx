@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Shirt } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 const links = [
-  { label: 'Início', to: '/' },
-  { label: 'Designs', to: '/designs' },
-  { label: 'Editor', to: '/editor' },
-  { label: 'Contato', to: '/contato' },
+  { label: 'INÍCIO', to: '/' },
+  { label: 'LOJA', to: '/designs' },
+  { label: 'PERSONALIZAR', to: '/editor' },
+  { label: 'SUPORTE', to: '/contato' },
 ]
 
 export default function Navbar() {
@@ -28,12 +28,12 @@ export default function Navbar() {
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/favicon.png" className="flex items-center gap-2 group">
-          <div>
-            <img src="/favicon.png" alt="Logo" className="w-8" />
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-dark-900 font-bold text-sm">
+            🌙
           </div>
           <span className="font-display text-2xl tracking-[0.15em] text-white">
-            CRIA<span className="text-gold-400">TTO</span>
+            LUA <span className="text-gold-400">ALFA</span>
           </span>
         </Link>
 
@@ -48,12 +48,15 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          <span className="text-gold-400 text-xs font-mono border border-gold-400/30 rounded-full px-3 py-1">
+            NOVA COLEÇÃO 2028
+          </span>
         </div>
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
           <Link to="/editor" className="btn-gold text-sm py-2 px-5">
-            Criar agora
+            PERSONALIZAR AGORA
           </Link>
         </div>
 
@@ -79,7 +82,7 @@ export default function Navbar() {
             </Link>
           ))}
           <Link to="/editor" className="btn-gold text-center mt-2">
-            Criar agora
+            PERSONALIZAR AGORA
           </Link>
         </div>
       )}

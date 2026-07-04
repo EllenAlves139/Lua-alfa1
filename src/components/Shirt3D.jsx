@@ -1,170 +1,102 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, useGLTF } from "@react-three/drei";
-import { useLayoutEffect, useEffect } from "react";
+import { useLayoutEffect, useEffect, useState } from "react";
 import * as THREE from "three";
 
-function Model({ color, image }) {
-  const { scene } = useGLTF("/models/tshirt-mannequin.glb");
+function Model({ color, image, scale, modelPath }) {
+  const { scene } = useGLTF(modelPath);
+  const [texture, setTexture] = useState(null);
 
   useLayoutEffect(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-
     const maxAxis = Math.max(size.x, size.y, size.z);
-    const scale = 8 / maxAxis;
-
-    scene.scale.setScalar(scale);
-
-    scene.position.set(
-      -center.x * scale,
-      -center.y * scale,
-      -center.z * scale
-    );
+    const sc = 8 / maxAxis;
+    scene.scale.setScalar(sc);
+    scene.position.set(-center.x * sc, -center.y * sc, -center.z * sc);
   }, [scene]);
 
-  // COR DA CAMISA
-  useEffect(() => {
-    scene.traverse((child) => {
-      if (
-        child.isMesh &&
-        child.material?.name === "Material22119"
-      ) {
-        // só altera cor se não existir textura
-        if (!child.material.map) {
-          child.material.color.set(color);
-          child.material.needsUpdate = true;
-        }
-      }
-    });
-  }, [scene, color]);
-
-  // ESTAMPA
+  // ─── GERA A TEXTURA ───
   useEffect(() => {
     if (!image) {
-      scene.traverse((child) => {
-        if (
-          child.isMesh &&
-          child.material?.name === "Material22119"
-        ) {
-          child.material.map = null;
-          child.material.color.set(color);
-          child.material.needsUpdate = true;
-        }
-      });
-
+      setTexture(null);
       return;
     }
 
-    const loader = new THREE.TextureLoader();
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const size = 1024;
+    canvas.width = size;
+    canvas.height = size;
+    ctx.clearRect(0, 0, size, size);
 
-    loader.setCrossOrigin("anonymous");
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = image;
 
-    const absoluteUrl =
-      image.startsWith?.("/")
-        ? window.location.origin + image
-        : image;
-
-    loader.load(
-      absoluteUrl,
-
-      (texture) => {
-        texture.flipY = false;
-
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-
-        texture.colorSpace = THREE.SRGBColorSpace;
-
-        texture.needsUpdate = true;
-
-        scene.traverse((child) => {
-          if (
-            child.isMesh &&
-            child.material?.name === "Material22119"
-          ) {
-            child.material.map = texture;
-
-            child.material.color.set("#ffffff");
-
-            child.material.vertexColors = false;
-
-            child.material.needsUpdate = true;
-          }
-        });
-      },
-
-      undefined,
-
-      (error) => {
-        console.warn(
-          "Erro ao carregar textura:",
-          absoluteUrl,
-          error
-        );
+    img.onload = () => {
+      const baseSize = size * 0.4;
+      const scaleFactor = Math.max(0.1, scale / 100);
+      const drawSize = baseSize * scaleFactor;
+      const cx = size / 2;
+      const cy = size / 2;
+      const aspect = img.width / img.height;
+      let drawW, drawH;
+      if (aspect > 1) {
+        drawW = drawSize;
+        drawH = drawSize / aspect;
+      } else {
+        drawH = drawSize;
+        drawW = drawSize * aspect;
       }
-    );
-  }, [scene, image, color]);
+      ctx.drawImage(img, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true;
+      setTexture(tex);
+    };
+
+    img.onerror = (err) => {
+      console.error("Erro ao carregar imagem:", err);
+      setTexture(null);
+    };
+  }, [image, scale]);
+
+  // ─── APLICA A TEXTURA OU A COR ───
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.isMesh && child.material) {
+        if (texture) {
+          child.material.map = texture;
+          child.material.color.set("#ffffff");
+        } else {
+          child.material.map = null;
+          child.material.color.set(color);
+        }
+        child.material.needsUpdate = true;
+      }
+    });
+  }, [scene, color, texture]);
 
   return <primitive object={scene} />;
 }
 
-export default function Shirt3D({
-  color = "#FFFFFF",
-  image = null,
-}) {
+export default function Shirt3D({ color = "#FFFFFF", image = null, scale = 30, modelPath = "/models/tshirt-mannequin.glb" }) {
   return (
     <div className="w-full h-[650px] rounded-xl overflow-hidden">
       <Canvas
         frameloop="demand"
-        camera={{
-          position: [0, 0, 15],
-          fov: 45,
-        }}
-        onCreated={({ gl }) => {
-          gl.domElement.addEventListener(
-            "webglcontextlost",
-            (e) => {
-              e.preventDefault();
-              console.warn("WebGL Context Lost");
-            }
-          );
-
-          gl.domElement.addEventListener(
-            "webglcontextrestored",
-            () => {
-              console.log("WebGL Context Restored");
-            }
-          );
-        }}
+        camera={{ position: [0, 0, 15], fov: 45 }}
       >
         <ambientLight intensity={1.5} />
-
-        <directionalLight
-          position={[10, 10, 10]}
-          intensity={2.5}
-        />
-
-        <directionalLight
-          position={[-10, 5, -10]}
-          intensity={1.5}
-        />
-
+        <directionalLight position={[10, 10, 10]} intensity={2.5} />
+        <directionalLight position={[-10, 5, -10]} intensity={1.5} />
         <Environment preset="city" />
-
-        <Model
-          color={color}
-          image={image}
-        />
-
-        <OrbitControls
-          enablePan={false}
-          minDistance={8}
-          maxDistance={30}
-        />
+        <Model color={color} image={image} scale={scale} modelPath={modelPath} />
+        <OrbitControls enablePan={false} minDistance={8} maxDistance={30} />
       </Canvas>
     </div>
   );
 }
-
-useGLTF.preload("/models/tshirt-mannequin.glb");

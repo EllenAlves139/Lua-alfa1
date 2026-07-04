@@ -1,139 +1,268 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Search, Filter } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { Search } from 'lucide-react'
 
-const CATEGORIES = ['Todos', 'Urbano', 'Minimalista', 'Streetwear', 'Corporativo', 'Natureza', 'Retrô']
-
-const FALLBACK_DESIGNS = [
-  { id: '1', name: 'Urban Lines', category: 'Urbano', image_url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
-  { id: '2', name: 'Minimal Logo', category: 'Minimalista', image_url: 'https://static.dafiti.com.br/p/Evoltenn-Camiseta-Basica-Milano-Moda-Urbana-Fashion-Logo-Minimalista-Off-White-7743-51213151-1-product.jpg' },
-  { id: '3', name: 'Street Art', category: 'Streetwear', image_url: 'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQKY1WG4DALLGGncZJjsBaCaD7TjTe5HLDq1rn4j1LO4v0RpgonZDIgkF4PtvWyqiADejg8hTTSjGpfNuHbvstdPMCYez1gRQ' },
-  { id: '4', name: 'Corporate Pro', category: 'Corporativo', image_url: 'https://www.berettadobrasil.com.br/media/tmp/webp/catalog/product/cache/1/image/800x/9df78eab33525d08d6e5fb8d27136e95/m/p/mp431_grey_1_jpg.webp' },
-  { id: '5', name: 'Nature Vibes', category: 'Natureza', image_url: 'https://http2.mlstatic.com/D_NQ_NP_967813-MLB83900671468_042025-O-camisa-oversized-nature-psicodelic-good-vibes-masculino.webp' },
-  { id: '6', name: 'Retro Wave', category: 'Retrô', image_url: 'https://r2.mont.ink/nmt/estampas/montink2.lojavirtualnuvem.com.br/Preto_51926970.png' },
-  { id: '7', name: 'Dark Vibes', category: 'Urbano', image_url: 'https://blacknine.cdn.magazord.com.br/img/2024/06/produto/3802/frente-503ad331-23cf-4b71-aa33-0f1b4f3e2650.jpeg' },
-  { id: '8', name: 'Clean Type', category: 'Minimalista', image_url: 'https://down-br.img.susercontent.com/file/br-11134207-81zu7-mky56anpbugz22' },
+// Produtos (mesmos dados)
+const PRODUCTS = [
+  {
+    id: 1,
+    name: 'Luna Core Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 149,90',
+    img: '/imagens/24.png',
+    badge: 'Personalizável'
+  },
+  {
+    id: 2,
+    name: 'Vector Alpha Tee',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 159,90',
+    img: '/imagens/10.png',
+    badge: 'Personalizável'
+  },
+  {
+    id: 3,
+    name: 'Pure Light Basic',
+    category: 'Adultos',
+    type: 'Sem Estampa',
+    price: 'R$ 79,90',
+    img: '/imagens/14.png'
+  },
+  {
+    id: 4,
+    name: 'Urban Wolf Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 139,90',
+    img: '/imagens/16.png'
+  },
+  {
+    id: 5,
+    name: 'Alpha Basic Black',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 79,90',
+    img: '/imagens/12.png'
+  },
+  {
+    id: 6,
+    name: 'Nocturnal Alpha Jacket',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 249,90',
+    img: '/imagens/11.png'
+  },
+  {
+    id: 7,
+    name: 'Street Graphic',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 119,80',
+    img: '/imagens/17.png'
+  },
+  {
+    id: 8,
+    name: 'Nightshade Hood',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 129,90',
+    img: '/imagens/19.png'
+  },
+  {
+    id: 9,
+    name: 'Core Heart Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 149,90',
+    img: '/imagens/18.png'
+  },
+  {
+    id: 10,
+    name: 'Urban Wolf Special',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 139,90',
+    img: '/imagens/20.png'
+  },
+  {
+    id: 11,
+    name: 'Flamengo Edition',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 159,90',
+    img: '/imagens/22.png'
+  },
 ]
 
+const CATEGORIES = ['Todas as Camisetas', 'Adultos', 'Adolescentes', 'Crianças']
+const TYPES = ['Com Estampa', 'Sem Estampa (Básicas)', 'Personalizáveis']
+
 export default function DesignsPage() {
-  const [designs, setDesigns] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [category, setCategory] = useState('Todos')
+  const [category, setCategory] = useState('Todas as Camisetas')
+  const [selectedTypes, setSelectedTypes] = useState([])
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('designs')
-        .select('*')
-        .eq('active', true)
-        .order('created_at', { ascending: false })
-
-      if (error || !data || data.length === 0) {
-        setDesigns(FALLBACK_DESIGNS)
-      } else {
-        setDesigns(data)
-      }
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  const filtered = designs.filter(d => {
-    const matchCat = category === 'Todos' || d.category === category
-    const matchSearch = d.name.toLowerCase().includes(search.toLowerCase())
-    return matchCat && matchSearch
+  // Filtragem
+  const filtered = PRODUCTS.filter(p => {
+    const matchCat = category === 'Todas as Camisetas' || p.category === category
+    const matchType = selectedTypes.length === 0 || selectedTypes.includes(p.type)
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
+    return matchCat && matchType && matchSearch
   })
+
+  const getCount = (cat) => {
+    if (cat === 'Todas as Camisetas') return PRODUCTS.length
+    return PRODUCTS.filter(p => p.category === cat).length
+  }
+
+  const toggleType = (type) => {
+    setSelectedTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
+  }
 
   return (
     <div className="min-h-screen pt-28 pb-20">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="mb-12">
-          <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-3">Biblioteca</span>
-          <h1 className="section-title mb-4">DESIGNS<br />PRONTOS</h1>
-          <p className="section-subtitle max-w-md">
-            Escolha um design profissional, personalize as cores e o tamanho, e leve para o editor.
-          </p>
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <span className="text-white/30 text-xs font-mono tracking-widest uppercase">LUA ALFA / <span className="text-gold-400">LOJA</span></span>
         </div>
 
-        {/* Search + Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-10">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-            <input
-              type="text"
-              placeholder="Buscar design..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-dark-700 border border-white/10 rounded-full pl-11 pr-5 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  category === cat
-                    ? 'bg-gold-400 text-dark-900'
-                    : 'border border-white/10 text-white/50 hover:border-gold-400/40 hover:text-gold-400'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* ─── SIDEBAR ESQUERDA ─── */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Título */}
+            <h1 className="font-display text-4xl tracking-wider">LOJA</h1>
+            <p className="text-white/40 text-sm leading-relaxed">
+              Explore nossa coleção completa. Encontre a peça perfeita para expressar sua essência.
+            </p>
 
-        {/* Grid */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-[3/4] rounded-2xl bg-dark-700 animate-pulse" />
-            ))}
+            {/* Catálogo */}
+            <div>
+              <h3 className="text-white/30 text-xs font-mono uppercase tracking-widest mb-3">Catálogo</h3>
+              <div className="space-y-2">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setCategory(cat)}
+                    className={`block w-full text-left text-sm transition-all ${
+                      category === cat
+                        ? 'text-gold-400 font-medium'
+                        : 'text-white/50 hover:text-white/70'
+                    }`}
+                  >
+                    {cat} <span className="text-white/20 text-xs">({getCount(cat)})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tipo */}
+            <div>
+              <h3 className="text-white/30 text-xs font-mono uppercase tracking-widest mb-3">Tipo</h3>
+              <div className="space-y-2">
+                {TYPES.map(type => (
+                  <label key={type} className="flex items-center gap-2 text-sm text-white/50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedTypes.includes(type)}
+                      onChange={() => toggleType(type)}
+                      className="w-4 h-4 rounded border-white/20 bg-dark-600 text-gold-400 focus:ring-gold-400 focus:ring-offset-0"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Barra de pesquisa com botão limpar */}
+            <div>
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="Buscar produto..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full bg-dark-700 border border-white/10 rounded-full pl-9 pr-10 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50"
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Banner DROP DA TEMPORADA */}
+            <div className="border-t border-white/5 pt-6">
+              <span className="text-white/20 text-xs font-mono uppercase tracking-widest block">DOP DA TEMPORADA</span>
+              <h4 className="font-display text-2xl tracking-wider text-gold-400 mt-1">
+                NOCTURNAL ALFA
+              </h4>
+              <p className="text-white/30 text-xs leading-relaxed mt-1">
+                Feita para quem domina a cidade. Minimalismo com identidade forte e personalização única.
+              </p>
+            </div>
+
+            {/* Contador */}
+            <div className="border-t border-white/5 pt-6">
+              <span className="text-white/40 text-sm font-mono">Mostrando {filtered.length} produtos</span>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {filtered.map(d => (
-              <DesignCard key={d.id} design={d} />
-            ))}
+
+          {/* ─── GRADE DE PRODUTOS (DIREITA) ─── */}
+          <div className="lg:col-span-3">
+            {filtered.some(p => p.badge) && (
+              <div className="mb-4">
+                <span className="text-gold-400 text-xs font-mono border border-gold-400/20 rounded-full px-3 py-1">
+                  Personalizável
+                </span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {filtered.map(p => (
+                <div key={p.id} className="group relative rounded-2xl overflow-hidden bg-dark-700 hover:scale-[1.02] transition-transform duration-300">
+                  <div className="aspect-[3/4] relative">
+                    <img
+                      src={p.img}
+                      alt={p.name}
+                      className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
+                    />
+                    {p.badge && (
+                      <span className="absolute top-3 left-3 bg-gold-400 text-dark-900 text-[10px] font-mono px-2 py-0.5 rounded-full">
+                        {p.badge}
+                      </span>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-dark-900/90 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <p className="text-white/40 text-[10px] font-mono uppercase tracking-widest">{p.category} - {p.type}</p>
+                      <p className="text-white font-display text-lg leading-tight">{p.name}</p>
+                      <p className="text-gold-400 font-body font-bold text-lg">{p.price}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {filtered.length === 0 && (
-              <div className="col-span-4 text-center py-20 text-white/30">
-                <p className="font-display text-3xl tracking-wider mb-2">NENHUM DESIGN</p>
-                <p className="text-sm">Tente outra categoria ou busca</p>
+              <div className="text-center py-20 text-white/30">
+                <p className="font-display text-3xl">NENHUM PRODUTO</p>
+                <p className="text-sm">Tente outros filtros</p>
               </div>
             )}
           </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function DesignCard({ design }) {
-  return (
-    <Link
-      to={`/editor?design=${design.id}`}
-      className="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-dark-700 hover:scale-[1.02] transition-transform duration-300 block"
-    >
-      <img
-        src={design.image_url}
-        alt={design.name}
-        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-dark-900/90 via-transparent to-transparent" />
-      <div className="absolute bottom-4 left-4 right-4">
-        <p className="text-gold-400 text-xs font-mono uppercase tracking-widest">{design.category}</p>
-        <p className="font-display text-lg tracking-wider mt-0.5 leading-tight">{design.name}</p>
-      </div>
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="bg-gold-400 text-dark-900 rounded-full px-5 py-2 text-sm font-semibold flex items-center gap-2">
-          Usar este <ArrowRight size={13} />
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
