@@ -1,13 +1,20 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import {
-  LayoutGrid, Upload, Sparkles, RotateCcw, ShoppingBag,
-  ChevronLeft, ChevronRight, Wand2, RefreshCw, Check, Loader2
+  Check,
+  Loader2,
+  Palette,
+  RotateCcw,
+  ShoppingBag,
+  Sparkles,
+  Upload,
+  Wand2,
+  X,
 } from 'lucide-react'
-import { supabase } from '../lib/supabase'
-import { HexColorPicker } from "react-colorful"
+import { HexColorPicker } from 'react-colorful'
 import Shirt3D from '../components/Shirt3D'
+import { supabase } from '../lib/supabase'
 
 const SHIRT_COLORS = [
   { hex: '#FFFFFF', label: 'Branco' },
@@ -19,7 +26,6 @@ const SHIRT_COLORS = [
   { hex: '#16A34A', label: 'Verde' },
   { hex: '#9333EA', label: 'Roxo' },
   { hex: '#EA580C', label: 'Laranja' },
-  { hex: '#FFD700', label: 'Dourado' },
   { hex: '#EC4899', label: 'Rosa' },
   { hex: '#0891B2', label: 'Ciano' },
 ]
@@ -27,46 +33,66 @@ const SHIRT_COLORS = [
 const SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG']
 
 const MODELS = [
-  { id: 'tshirt', name: 'Camiseta', path: '/models/tshirt-mannequin.glb', icon: '👕' },
-  { id: 'hoodie', name: 'Moletom com Capuz', path: '/models/hoodie_with_hood_up.glb', icon: '🧥' },
-  { id: 'sweatshirt', name: 'Moletom', path: '/models/sweatshirt_warm.glb', icon: '🧶' },
+  { id: 'tshirt', name: 'Camiseta', path: '/models/tshirt-mannequin.glb' },
+  { id: 'hoodie', name: 'Moletom com Capuz', path: '/models/hoodie_with_hood_up.glb' },
+  { id: 'sweatshirt', name: 'Moletom', path: '/models/sweatshirt_warm.glb' },
 ]
 
 const AI_STYLES = [
-  { id: 'realista', label: 'Realista', icon: '🎨' },
-  { id: 'cartoon', label: 'Cartoon', icon: '✏️' },
-  { id: 'abstrato', label: 'Abstrato', icon: '🌀' },
-  { id: 'tipografico', label: 'Tipográfico', icon: '🔤' },
-  { id: 'aquarela', label: 'Aquarela', icon: '🖌️' },
-  { id: 'futurista', label: 'Futurista', icon: '🚀' },
-  { id: 'minimalista', label: 'Minimalista', icon: '◽' },
-  { id: 'retro', label: 'Retrô', icon: '📻' },
+  { id: 'realista', label: 'Realista' },
+  { id: 'cartoon', label: 'Cartoon' },
+  { id: 'abstrato', label: 'Abstrato' },
+  { id: 'tipografico', label: 'Tipográfico' },
+  { id: 'aquarela', label: 'Aquarela' },
+  { id: 'futurista', label: 'Futurista' },
+  { id: 'minimalista', label: 'Minimalista' },
+  { id: 'retro', label: 'Retrô' },
 ]
 
 const AI_ELEMENTS = [
-  { id: 'animais', label: 'Animais', icon: '🐆' },
-  { id: 'natureza', label: 'Natureza', icon: '🌿' },
-  { id: 'geometria', label: 'Geometria', icon: '⬡' },
-  { id: 'cultura_pop', label: 'Cultura Pop', icon: '🎮' },
-  { id: 'frases', label: 'Frases', icon: '💬' },
-  { id: 'simbolos', label: 'Símbolos', icon: '⚡' },
-  { id: 'espaco', label: 'Espaço', icon: '🌌' },
-  { id: 'urbano', label: 'Urbano', icon: '🏙️' },
-  { id: 'esporte', label: 'Esporte', icon: '⚽' },
-  { id: 'musica', label: 'Música', icon: '🎵' },
-]
-
-const MODES = [
-  { id: 'upload', label: 'Upload de Arte', icon: <Upload size={16} /> },
-  { id: 'ai', label: 'IA Generativa', icon: <Sparkles size={16} /> },
+  { id: 'animais', label: 'Animais' },
+  { id: 'natureza', label: 'Natureza' },
+  { id: 'geometria', label: 'Geometria' },
+  { id: 'cultura_pop', label: 'Cultura Pop' },
+  { id: 'frases', label: 'Frases' },
+  { id: 'simbolos', label: 'Símbolos' },
+  { id: 'espaco', label: 'Espaço' },
+  { id: 'urbano', label: 'Urbano' },
+  { id: 'esporte', label: 'Esporte' },
+  { id: 'musica', label: 'Música' },
 ]
 
 const AI_GENERATED_SAMPLES = [
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
-  'https://plus.unsplash.com/premium_photo-1779703288699-435130748577?w=300&q=80',
+  'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=700&q=80',
+  'https://images.unsplash.com/photo-1635776063043-ab23b4c226f6?w=700&q=80',
+  'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=700&q=80',
+  'https://images.unsplash.com/photo-1557683316-973673baf926?w=700&q=80',
 ]
+
+function PillButton({ active, children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-4 py-2 text-sm transition-all ${
+        active
+          ? 'bg-gold-400 text-dark-900 font-semibold'
+          : 'border border-white/10 text-white/55 hover:border-gold-400/50 hover:text-gold-400'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Field({ label, children }) {
+  return (
+    <label className="block space-y-2">
+      <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/40">{label}</span>
+      {children}
+    </label>
+  )
+}
 
 export default function EditorPage() {
   const [mode, setMode] = useState('upload')
@@ -75,68 +101,99 @@ export default function EditorPage() {
   const [selectedModel, setSelectedModel] = useState(MODELS[0])
   const [uploadedImage, setUploadedImage] = useState(null)
   const [stampScale, setStampScale] = useState(30)
+  const [stampX, setStampX] = useState(0)
+  const [stampY, setStampY] = useState(0.15)
+  const [stampRotation, setStampRotation] = useState(0)
   const [aiStyle, setAiStyle] = useState([])
   const [aiElements, setAiElements] = useState([])
   const [aiResult, setAiResult] = useState(null)
   const [aiGenerating, setAiGenerating] = useState(false)
+  const [showOrderForm, setShowOrderForm] = useState(false)
   const [ordering, setOrdering] = useState(false)
   const [orderDone, setOrderDone] = useState(false)
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
-  const [showOrderForm, setShowOrderForm] = useState(false)
+
+  const currentArt = mode === 'upload' ? uploadedImage : aiResult
+
+  const stampPosition = useMemo(() => ({ x: stampX, y: stampY }), [stampX, stampY])
 
   const onDrop = useCallback(files => {
     const file = files[0]
     if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Envie um arquivo de imagem válido.')
+      return
+    }
+
     const reader = new FileReader()
-    reader.onload = e => setUploadedImage(e.target.result)
+    reader.onload = event => {
+      setUploadedImage(event.target.result)
+      setMode('upload')
+      toast.success('Arte carregada com sucesso!')
+    }
+    reader.onerror = () => toast.error('Não foi possível ler a imagem.')
     reader.readAsDataURL(file)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.svg', '.webp'] },
+    accept: {
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/webp': ['.webp'],
+      'image/svg+xml': ['.svg'],
+    },
     maxFiles: 1,
+    multiple: false,
   })
 
-  const currentArt = mode === 'upload' ? uploadedImage : aiResult
-
-  function toggleAiStyle(id) {
-    setAiStyle(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  function toggleItem(setter, id) {
+    setter(prev => (prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]))
   }
 
-  function toggleAiElement(id) {
-    setAiElements(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  function resetStamp() {
+    setStampScale(30)
+    setStampX(0)
+    setStampY(0.15)
+    setStampRotation(0)
   }
 
   async function generateAI() {
     if (aiStyle.length === 0 && aiElements.length === 0) {
-      toast.error('Selecione pelo menos um estilo ou elemento')
+      toast.error('Selecione pelo menos um estilo ou elemento.')
       return
     }
+
     setAiGenerating(true)
     setAiResult(null)
-    await new Promise(r => setTimeout(r, 2200))
+
+    await new Promise(resolve => setTimeout(resolve, 1600))
+
     const sample = AI_GENERATED_SAMPLES[Math.floor(Math.random() * AI_GENERATED_SAMPLES.length)]
     setAiResult(sample)
 
-    await supabase.from('ai_generations').insert({
+    const { error } = await supabase.from('ai_generations').insert({
       style: aiStyle.join(', '),
       elements: aiElements,
       prompt_used: `Estilo: ${aiStyle.join(', ')} | Elementos: ${aiElements.join(', ')}`,
       result_url: sample,
     })
 
+    if (error) console.error('Erro ao salvar geração IA:', error)
+
     setAiGenerating(false)
     toast.success('Arte gerada com sucesso!')
   }
 
   function surpriseMe() {
-    const randStyles = AI_STYLES.sort(() => .5 - Math.random()).slice(0, 2).map(s => s.id)
-    const randElements = AI_ELEMENTS.sort(() => .5 - Math.random()).slice(0, 3).map(e => e.id)
-    setAiStyle(randStyles)
-    setAiElements(randElements)
+    const randomStyles = [...AI_STYLES].sort(() => 0.5 - Math.random()).slice(0, 2).map(item => item.id)
+    const randomElements = [...AI_ELEMENTS].sort(() => 0.5 - Math.random()).slice(0, 3).map(item => item.id)
+
+    setAiStyle(randomStyles)
+    setAiElements(randomElements)
     toast('Combinação aleatória selecionada ✨')
   }
 
@@ -145,28 +202,34 @@ export default function EditorPage() {
       const response = await fetch(base64Data)
       const blob = await response.blob()
       const fileExt = blob.type.split('/')[1] || 'png'
-      const fileName = `design-${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
-      const { error } = await supabase.storage
-        .from('camisas-artes')
-        .upload(fileName, blob)
+      const fileName = `design-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
+
+      const { error } = await supabase.storage.from('camisas-artes').upload(fileName, blob, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: blob.type,
+      })
+
       if (error) throw error
-      const { data: publicUrlData } = supabase.storage
-        .from('camisas-artes')
-        .getPublicUrl(fileName)
-      return publicUrlData.publicUrl
+
+      const { data } = supabase.storage.from('camisas-artes').getPublicUrl(fileName)
+      return data.publicUrl
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error)
       return null
     }
   }
 
-  async function handleOrder() {
-    if (!customerName || !customerEmail) {
-      toast.error('Preencha nome e e-mail')
+  async function handleOrder(event) {
+    event.preventDefault()
+
+    if (!customerName.trim() || !customerEmail.trim()) {
+      toast.error('Preencha nome e e-mail.')
       return
     }
-    if (!currentArt && mode !== 'ai') {
-      toast.error('Selecione ou crie uma arte primeiro')
+
+    if (!currentArt) {
+      toast.error('Envie ou gere uma arte antes de finalizar.')
       return
     }
 
@@ -176,26 +239,31 @@ export default function EditorPage() {
 
     if (mode === 'upload' && uploadedImage) {
       const uploadedUrl = await uploadImageToSupabase(uploadedImage)
-      if (uploadedUrl) {
-        finalArtUrl = uploadedUrl
-      } else {
+      if (!uploadedUrl) {
         setOrdering(false)
         toast.error('Erro ao processar a imagem do upload. Tente novamente.')
         return
       }
+      finalArtUrl = uploadedUrl
     }
 
     const designData = {
       mode,
       model: selectedModel.id,
-      art: finalArtUrl || null,
-      designName: mode === 'ai' ? `IA: ${aiStyle.join('+')}` : 'Upload personalizado',
+      art: finalArtUrl,
+      designName: mode === 'ai' ? `IA: ${aiStyle.join('+') || 'personalizada'}` : 'Upload personalizado',
+      stamp: {
+        scale: stampScale,
+        x: stampX,
+        y: stampY,
+        rotation: stampRotation,
+      },
     }
 
     const { error } = await supabase.from('orders').insert({
-      customer_name: customerName,
-      customer_email: customerEmail,
-      customer_phone: customerPhone || null,
+      customer_name: customerName.trim(),
+      customer_email: customerEmail.trim(),
+      customer_phone: customerPhone.trim() || null,
       design_type: mode === 'upload' ? 'upload' : 'ai',
       design_data: designData,
       shirt_color: shirtColor,
@@ -208,328 +276,323 @@ export default function EditorPage() {
     setOrdering(false)
 
     if (error) {
+      console.error('Erro ao salvar pedido:', error)
       toast.error('Erro ao enviar pedido. Tente novamente.')
       return
     }
 
-    const numWhatsEmpresa = "5532984521595"
-    const corLabel = SHIRT_COLORS.find(c => c.hex === shirtColor)?.label || shirtColor
-    const totalFormatado = '59,90'
-
-    const textoMensagem = `Olá! Acabei de fazer um pedido personalizado pelo site:
-
-👤 *DADOS DO CLIENTE:*
-• Nome: ${customerName}
-• E-mail: ${customerEmail}
-• WhatsApp: ${customerPhone || 'Não informado'}
-
-👕 *DETALHES DA CAMISA:*
-• Modelo: ${selectedModel.name}
-• Arte: ${designData.designName}
-• Cor da Camisa: ${corLabel}
-• Tamanho: ${size}
-• Quantidade: 1 unidade
-
-💰 *VALOR TOTAL:*
-• *R$ ${totalFormatado}*
-
-🖼️ *FOTO DA ESTAMPA SELECIONADA:*
-${finalArtUrl}`
-
-    const textoCodificado = encodeURIComponent(textoMensagem)
-    const urlWhatsapp = `https://wa.me/${numWhatsEmpresa}?text=${textoCodificado}`
-
-    window.open(urlWhatsapp, '_blank')
+    const companyWhatsApp = '5532984521595'
+    const colorLabel = SHIRT_COLORS.find(item => item.hex === shirtColor)?.label || shirtColor
+    const message = `Olá! Acabei de fazer um pedido personalizado pelo site LUA ALFA.%0A%0A*DADOS DO CLIENTE*%0A• Nome: ${customerName}%0A• E-mail: ${customerEmail}%0A• WhatsApp: ${customerPhone || 'Não informado'}%0A%0A*DETALHES DA PEÇA*%0A• Modelo: ${selectedModel.name}%0A• Arte: ${designData.designName}%0A• Cor: ${colorLabel} (${shirtColor})%0A• Tamanho: ${size}%0A• Quantidade: 1 unidade%0A• Escala da estampa: ${stampScale}%25%0A• Posição: X ${stampX} / Y ${stampY}%0A• Rotação: ${stampRotation}°%0A%0A*VALOR TOTAL:* R$ 59,90%0A%0A*ARTE SELECIONADA:* ${finalArtUrl}`
+    window.open(`https://wa.me/${companyWhatsApp}?text=${message}`, '_blank')
 
     setOrderDone(true)
     setShowOrderForm(false)
-    toast.success('Pedido enviado! Redirecionando para o WhatsApp... 🎉')
+    toast.success('Pedido enviado! Redirecionando para o WhatsApp...')
   }
 
   if (orderDone) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="text-center max-w-md px-6">
-          <div className="w-20 h-20 rounded-full bg-gold-400 flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-            <Check size={36} className="text-dark-900" />
+      <main className="relative min-h-screen overflow-hidden bg-dark-900 px-4 py-28 text-white">
+        <div className="absolute left-1/2 top-20 h-80 w-80 -translate-x-1/2 rounded-full bg-gold-400/20 blur-3xl" />
+        <section className="relative mx-auto max-w-xl rounded-3xl border border-white/10 bg-dark-700/70 p-8 text-center backdrop-blur-sm">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold-400 text-dark-900">
+            <Check size={34} />
           </div>
-          <h2 className="font-display text-5xl tracking-wider mb-4">PEDIDO ENVIADO!</h2>
-          <p className="text-white/50 mb-8">Recebemos seu pedido e entraremos em contato em breve.</p>
-          <button onClick={() => { setOrderDone(false); setUploadedImage(null); setAiResult(null) }} className="btn-gold">
-            Criar outro
+          <p className="mb-2 text-sm uppercase tracking-[0.35em] text-gold-400">Pedido enviado</p>
+          <h1 className="font-display text-5xl tracking-wide">Tudo certo!</h1>
+          <p className="mt-3 text-white/55">Recebemos seu pedido e abrimos o WhatsApp com os dados da personalização.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setOrderDone(false)
+              setUploadedImage(null)
+              setAiResult(null)
+              setCustomerName('')
+              setCustomerEmail('')
+              setCustomerPhone('')
+              resetStamp()
+            }}
+            className="btn-gold mt-8"
+          >
+            Criar outro pedido
           </button>
-        </div>
-      </div>
+        </section>
+      </main>
     )
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden">
-      {/* Fundo azul */}
-      <div className="absolute inset-0 bg-dark-900">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
-      </div>
+    <main className="relative min-h-screen overflow-hidden bg-dark-900 px-4 py-24 text-white">
+      <div className="absolute left-1/2 top-24 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gold-400/15 blur-3xl" />
 
-      <div className="relative max-w-7xl mx-auto px-6">
-        <div className="mb-8">
-          <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-2">Editor</span>
-          <h1 className="font-display text-4xl md:text-5xl tracking-wider">PERSONALIZAR CAMISA</h1>
+      <section className="relative mx-auto max-w-7xl">
+        <div className="mb-10 text-center">
+          <p className="mb-3 text-sm uppercase tracking-[0.4em] text-gold-400">Editor LUA ALFA</p>
+          <h1 className="font-display text-5xl tracking-wide md:text-7xl">Personalizar peça</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-white/55">
+            Envie sua arte, ajuste posição, tamanho e rotação da estampa, escolha o modelo e finalize pelo WhatsApp.
+          </p>
         </div>
 
-        <div className="flex gap-2 mb-8 flex-wrap">
-          {MODES.map(m => (
-            <button
-              key={m.id}
-              onClick={() => setMode(m.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                mode === m.id
-                  ? 'bg-gold-400 text-dark-900'
-                  : 'border border-white/10 text-white/50 hover:border-gold-400/40 hover:text-gold-400'
-              }`}
-            >
-              {m.icon} {m.label}
-            </button>
-          ))}
-        </div>
+        <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+          <aside className="space-y-5">
+            <div className="glass-card p-5">
+              <div className="mb-4 flex gap-3">
+                <PillButton active={mode === 'upload'} onClick={() => setMode('upload')}>
+                  <Upload className="mr-2 inline" size={16} /> Upload
+                </PillButton>
+                <PillButton active={mode === 'ai'} onClick={() => setMode('ai')}>
+                  <Sparkles className="mr-2 inline" size={16} /> IA
+                </PillButton>
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="glass-card p-6">
-              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ESCOLHER MODELO</h3>
+              {mode === 'upload' ? (
+                <div>
+                  <h2 className="mb-3 font-display text-3xl tracking-wide">Enviar arte</h2>
+                  <div
+                    {...getRootProps()}
+                    className={`cursor-pointer rounded-2xl border border-dashed p-6 text-center transition-all ${
+                      isDragActive
+                        ? 'border-gold-400 bg-gold-400/10'
+                        : 'border-white/15 bg-dark-600/80 hover:border-gold-400/60'
+                    }`}
+                  >
+                    <input {...getInputProps()} />
+                    {uploadedImage ? (
+                      <div className="space-y-3">
+                        <img src={uploadedImage} alt="Arte enviada" className="mx-auto h-28 max-w-full rounded-xl object-contain" />
+                        <p className="text-sm text-gold-400">Arte carregada. Clique para trocar.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 text-white/50">
+                        <Upload className="mx-auto text-gold-400" size={34} />
+                        <p>Arraste ou clique para enviar</p>
+                        <p className="text-xs">PNG, JPG, SVG ou WEBP</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {uploadedImage && (
+                    <button
+                      type="button"
+                      onClick={() => setUploadedImage(null)}
+                      className="mt-3 flex items-center gap-2 text-xs text-white/35 transition hover:text-red-400"
+                    >
+                      <X size={14} /> Remover arte
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <h2 className="mb-3 font-display text-3xl tracking-wide">Gerador IA</h2>
+
+                  <p className="mb-2 text-xs uppercase tracking-[0.22em] text-white/40">Estilo</p>
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {AI_STYLES.map(item => (
+                      <PillButton key={item.id} active={aiStyle.includes(item.id)} onClick={() => toggleItem(setAiStyle, item.id)}>
+                        {item.label}
+                      </PillButton>
+                    ))}
+                  </div>
+
+                  <p className="mb-2 text-xs uppercase tracking-[0.22em] text-white/40">Elementos</p>
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {AI_ELEMENTS.map(item => (
+                      <PillButton key={item.id} active={aiElements.includes(item.id)} onClick={() => toggleItem(setAiElements, item.id)}>
+                        {item.label}
+                      </PillButton>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button type="button" onClick={generateAI} disabled={aiGenerating} className="btn-gold flex flex-1 items-center justify-center gap-2">
+                      {aiGenerating ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
+                      {aiGenerating ? 'Gerando...' : 'Gerar arte'}
+                    </button>
+                    <button type="button" onClick={surpriseMe} className="btn-outline-gold px-4">
+                      Surpresa
+                    </button>
+                  </div>
+
+                  {aiResult && (
+                    <img src={aiResult} alt="Arte gerada por IA" className="mt-4 h-28 w-full rounded-2xl object-cover" />
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="glass-card p-5">
+              <h2 className="mb-4 font-display text-3xl tracking-wide">Modelo</h2>
               <div className="grid grid-cols-3 gap-3">
                 {MODELS.map(model => (
                   <button
+                    type="button"
                     key={model.id}
                     onClick={() => setSelectedModel(model)}
-                    className={`relative rounded-xl overflow-hidden aspect-square border-2 transition-all bg-dark-600 flex flex-col items-center justify-center ${
-                      selectedModel?.id === model.id ? 'border-gold-400 scale-105' : 'border-transparent hover:border-white/20'
+                    className={`rounded-2xl border p-3 text-center text-sm transition ${
+                      selectedModel.id === model.id
+                        ? 'border-gold-400 bg-gold-400/10 text-gold-400'
+                        : 'border-white/10 bg-dark-600 text-white/55 hover:border-gold-400/50'
                     }`}
                   >
-                    <span className="text-5xl mb-2">{model.icon}</span>
-                    <span className="text-white text-xs font-mono tracking-wider text-center px-1">{model.name}</span>
-                    {selectedModel?.id === model.id && (
-                      <div className="absolute inset-0 bg-gold-400/20 flex items-center justify-center">
-                        <Check size={20} className="text-gold-400" />
-                      </div>
-                    )}
+                    {model.name}
                   </button>
                 ))}
               </div>
             </div>
 
-            {mode === 'upload' && (
-              <div className="glass-card p-6">
-                <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ENVIAR SUA ARTE</h3>
-                <div
-                  {...getRootProps()}
-                  className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
-                    isDragActive ? 'border-gold-400 bg-gold-400/5' : 'border-white/10 hover:border-gold-400/40 hover:bg-white/2'
-                  }`}
-                >
-                  <input {...getInputProps()} />
-                  {uploadedImage ? (
-                    <div className="space-y-3">
-                      <p className="text-gold-400 text-sm">✅ Arte carregada com sucesso! Clique para trocar.</p>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload size={32} className="text-white/20 mx-auto mb-3" />
-                      <p className="text-white/50 text-sm mb-1">Arraste ou clique para enviar</p>
-                      <p className="text-white/25 text-xs">PNG, JPG, SVG · Recomendado 300 DPI mínimo</p>
-                    </>
-                  )}
-                </div>
-                {uploadedImage && (
-                  <>
-                    <button onClick={() => setUploadedImage(null)} className="mt-3 text-white/30 hover:text-red-400 text-xs flex items-center gap-1 transition-colors">
-                      <RotateCcw size={12} /> Remover
-                    </button>
-                    <div className="mt-4">
-                      <label className="text-white/40 text-xs block mb-1">Tamanho da estampa: {stampScale}%</label>
-                      <input
-                        type="range"
-                        min="10"
-                        max="80"
-                        value={stampScale}
-                        onChange={(e) => setStampScale(Number(e.target.value))}
-                        className="w-full accent-gold-400"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+            <div className="glass-card space-y-5 p-5">
+              <h2 className="font-display text-3xl tracking-wide">Configurações</h2>
 
-            {mode === 'ai' && (
-              <div className="glass-card p-6 space-y-6">
-                <h3 className="font-display text-xl tracking-wider text-gold-400">GERADOR DE ARTE IA</h3>
-                <div>
-                  <p className="text-white/50 text-sm mb-3">Estilo</p>
-                  <div className="flex flex-wrap gap-2">
-                    {AI_STYLES.map(s => (
-                      <button
-                        key={s.id}
-                        onClick={() => toggleAiStyle(s.id)}
-                        className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
-                          aiStyle.includes(s.id) ? 'bg-gold-400 text-dark-900 font-medium' : 'border border-white/10 text-white/50 hover:border-gold-400/40'
-                        }`}
-                      >
-                        <span>{s.icon}</span> {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-white/50 text-sm mb-3">Elementos</p>
-                  <div className="flex flex-wrap gap-2">
-                    {AI_ELEMENTS.map(e => (
-                      <button
-                        key={e.id}
-                        onClick={() => toggleAiElement(e.id)}
-                        className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
-                          aiElements.includes(e.id) ? 'bg-gold-400/20 text-gold-400 border border-gold-400/50 font-medium' : 'border border-white/10 text-white/50 hover:border-gold-400/40'
-                        }`}
-                      >
-                        <span>{e.icon}</span> {e.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={generateAI}
-                    disabled={aiGenerating}
-                    className="flex-1 btn-gold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {aiGenerating ? <><Loader2 size={16} className="animate-spin" /> Gerando...</> : <><Wand2 size={16} /> Gerar Arte</>}
-                  </button>
-                  <button
-                    onClick={surpriseMe}
-                    className="btn-outline-gold px-4 flex items-center gap-2 text-sm"
-                  >
-                    <RefreshCw size={14} /> Surpreenda-me
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="glass-card p-6">
-              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">CONFIGURAÇÕES</h3>
-              <div className="mb-5">
-                <p className="text-white/50 text-sm mb-3">Cor da camisa</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {SHIRT_COLORS.map(c => (
+              <Field label="Cor da peça">
+                <div className="flex flex-wrap gap-2">
+                  {SHIRT_COLORS.map(color => (
                     <button
-                      key={c.hex}
-                      title={c.label}
-                      onClick={() => setShirtColor(c.hex)}
-                      className={`w-7 h-7 rounded-full border-2 transition-all hover:scale-125 ${
-                        shirtColor === c.hex ? 'border-gold-400 scale-125' : 'border-transparent'
+                      type="button"
+                      key={color.hex}
+                      aria-label={color.label}
+                      onClick={() => setShirtColor(color.hex)}
+                      className={`h-8 w-8 rounded-full border-2 transition hover:scale-110 ${
+                        shirtColor === color.hex ? 'border-gold-400 scale-110' : 'border-white/10'
                       }`}
-                      style={{
-                        backgroundColor: c.hex,
-                        boxShadow: c.hex === '#FFFFFF' ? 'inset 0 0 0 1px rgba(255,255,255,0.1)' : 'none'
-                      }}
+                      style={{ backgroundColor: color.hex }}
                     />
                   ))}
                 </div>
-                <div className="flex justify-center mb-4">
-                  <HexColorPicker color={shirtColor} onChange={setShirtColor} />
+                <div className="mt-3 grid gap-3 sm:grid-cols-[160px_1fr]">
+                  <HexColorPicker color={shirtColor} onChange={setShirtColor} className="!h-32 !w-full" />
+                  <div className="space-y-3">
+                    <input
+                      value={shirtColor}
+                      onChange={event => setShirtColor(event.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-dark-600 px-4 py-3 text-sm text-white outline-none focus:border-gold-400/60"
+                    />
+                    <div className="flex items-center gap-2 text-white/45">
+                      <Palette size={16} /> Ajuste manual por HEX
+                    </div>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  value={shirtColor}
-                  onChange={(e) => setShirtColor(e.target.value)}
-                  placeholder="#FFFFFF"
-                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50"
-                />
-              </div>
-              <div>
-                <p className="text-white/50 text-sm mb-3">Tamanho</p>
-                <div className="flex gap-2">
-                  {SIZES.map(s => (
+              </Field>
+
+              <Field label="Tamanho da peça">
+                <div className="flex flex-wrap gap-2">
+                  {SIZES.map(item => (
                     <button
-                      key={s}
-                      onClick={() => setSize(s)}
-                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                        size === s ? 'bg-gold-400 text-dark-900' : 'border border-white/10 text-white/50 hover:border-gold-400/40'
+                      type="button"
+                      key={item}
+                      onClick={() => setSize(item)}
+                      className={`h-10 w-12 rounded-xl text-sm font-semibold transition ${
+                        size === item ? 'bg-gold-400 text-dark-900' : 'border border-white/10 text-white/50 hover:border-gold-400/50'
                       }`}
                     >
-                      {s}
+                      {item}
                     </button>
                   ))}
                 </div>
-              </div>
+              </Field>
             </div>
-          </div>
+          </aside>
 
-          <div className="space-y-6">
-            <div className="glass-card p-6">
-              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">PRÉ-VISUALIZAÇÃO 3D</h3>
+          <section className="space-y-5">
+            <div className="glass-card p-5">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-display text-3xl tracking-wide">Pré-visualização 3D</h2>
+                  <p className="text-sm text-white/45">Gire o modelo e ajuste a estampa em tempo real.</p>
+                </div>
+                <button type="button" onClick={resetStamp} className="btn-outline-gold flex items-center justify-center gap-2 px-4 py-2 text-sm">
+                  <RotateCcw size={16} /> Resetar estampa
+                </button>
+              </div>
+
               <Shirt3D
                 color={shirtColor}
                 image={currentArt}
                 scale={stampScale}
+                stampPosition={stampPosition}
+                stampRotation={stampRotation}
                 modelPath={selectedModel.path}
               />
             </div>
 
-            {!showOrderForm ? (
-              <button
-                onClick={() => setShowOrderForm(true)}
-                className="w-full btn-gold flex items-center justify-center gap-2 py-4 text-base animate-glow-pulse"
-              >
-                <ShoppingBag size={18} /> Fazer Pedido · R$ 59,90
-              </button>
-            ) : (
-              <div className="glass-card p-6 space-y-4">
-                <h3 className="font-display text-xl tracking-wider text-gold-400">DADOS DO PEDIDO</h3>
-                <input
-                  type="text"
-                  placeholder="Seu nome *"
-                  value={customerName}
-                  onChange={e => setCustomerName(e.target.value)}
-                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
-                />
-                <input
-                  type="email"
-                  placeholder="Seu e-mail *"
-                  value={customerEmail}
-                  onChange={e => setCustomerEmail(e.target.value)}
-                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
-                />
-                <input
-                  type="tel"
-                  placeholder="Seu WhatsApp (opcional)"
-                  value={customerPhone}
-                  onChange={e => setCustomerPhone(e.target.value)}
-                  className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowOrderForm(false)}
-                    className="btn-outline-gold flex-1"
-                  >
-                    Voltar
-                  </button>
-                  <button
-                    onClick={handleOrder}
-                    disabled={ordering}
-                    className="btn-gold flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {ordering ? <><Loader2 size={15} className="animate-spin" /> Enviando...</> : <><Check size={15} /> Confirmar</>}
-                  </button>
-                </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="glass-card space-y-4 p-5">
+                <h3 className="font-display text-2xl tracking-wide">Ajuste da estampa</h3>
+
+                <Field label={`Tamanho: ${stampScale}%`}>
+                  <input type="range" min="8" max="100" value={stampScale} onChange={event => setStampScale(Number(event.target.value))} className="w-full accent-gold-400" />
+                </Field>
+
+                <Field label={`Posição horizontal: ${stampX}`}>
+                  <input type="range" min="-1.4" max="1.4" step="0.05" value={stampX} onChange={event => setStampX(Number(event.target.value))} className="w-full accent-gold-400" />
+                </Field>
+
+                <Field label={`Posição vertical: ${stampY}`}>
+                  <input type="range" min="-1.2" max="1.4" step="0.05" value={stampY} onChange={event => setStampY(Number(event.target.value))} className="w-full accent-gold-400" />
+                </Field>
+
+                <Field label={`Rotação: ${stampRotation}°`}>
+                  <input type="range" min="-180" max="180" value={stampRotation} onChange={event => setStampRotation(Number(event.target.value))} className="w-full accent-gold-400" />
+                </Field>
               </div>
-            )}
-          </div>
+
+              <div className="glass-card p-5">
+                {!showOrderForm ? (
+                  <div className="flex h-full flex-col justify-between gap-5">
+                    <div>
+                      <h3 className="font-display text-3xl tracking-wide">Resumo</h3>
+                      <div className="mt-4 space-y-2 text-sm text-white/55">
+                        <p>Modelo: <span className="text-white">{selectedModel.name}</span></p>
+                        <p>Cor: <span className="text-white">{SHIRT_COLORS.find(item => item.hex === shirtColor)?.label || shirtColor}</span></p>
+                        <p>Tamanho: <span className="text-white">{size}</span></p>
+                        <p>Arte: <span className="text-white">{currentArt ? 'Selecionada' : 'Pendente'}</span></p>
+                        <p className="text-2xl font-bold text-gold-400">R$ 59,90</p>
+                      </div>
+                    </div>
+
+                    <button type="button" onClick={() => setShowOrderForm(true)} className="btn-gold flex w-full items-center justify-center gap-2 py-4">
+                      <ShoppingBag size={19} /> Fazer pedido
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleOrder} className="space-y-4">
+                    <h3 className="font-display text-3xl tracking-wide">Dados do pedido</h3>
+                    <input
+                      value={customerName}
+                      onChange={event => setCustomerName(event.target.value)}
+                      placeholder="Nome completo"
+                      className="w-full rounded-xl border border-white/10 bg-dark-600 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-gold-400/60"
+                    />
+                    <input
+                      type="email"
+                      value={customerEmail}
+                      onChange={event => setCustomerEmail(event.target.value)}
+                      placeholder="E-mail"
+                      className="w-full rounded-xl border border-white/10 bg-dark-600 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-gold-400/60"
+                    />
+                    <input
+                      value={customerPhone}
+                      onChange={event => setCustomerPhone(event.target.value)}
+                      placeholder="WhatsApp"
+                      className="w-full rounded-xl border border-white/10 bg-dark-600 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-gold-400/60"
+                    />
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => setShowOrderForm(false)} className="btn-outline-gold flex-1">
+                        Voltar
+                      </button>
+                      <button type="submit" disabled={ordering} className="btn-gold flex flex-1 items-center justify-center gap-2">
+                        {ordering && <Loader2 className="animate-spin" size={17} />}
+                        {ordering ? 'Enviando...' : 'Confirmar'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }

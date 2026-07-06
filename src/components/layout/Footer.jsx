@@ -6,7 +6,6 @@ export default function Footer() {
     <footer className="bg-dark-800 border-t border-white/5 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-          {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img 
@@ -26,7 +25,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Loja */}
           <div>
             <p className="text-white/20 text-xs font-mono uppercase tracking-widest mb-5">Loja</p>
             <ul className="space-y-2 text-sm">
@@ -38,20 +36,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Ajuda */}
           <div>
             <p className="text-white/20 text-xs font-mono uppercase tracking-widest mb-5">Ajuda & Suporte</p>
             <ul className="space-y-2 text-sm">
               <li><Link to="/contato" className="text-white/50 hover:text-gold-400">Central de Ajuda</Link></li>
-              <li><span className="text-white/50">Como Comprar</span></li>
-              <li><span className="text-white/50">Trocas e Devoluções</span></li>
-              <li><span className="text-white/50">Guia de Tamanhos</span></li>
-              <li><span className="text-white/50">Rastrear Pedido</span></li>
+              <li><Link to="/como-comprar" className="text-white/50 hover:text-gold-400">Como Comprar</Link></li>
+              <li><Link to="/trocas" className="text-white/50 hover:text-gold-400">Trocas e Devoluções</Link></li>
+              <li><Link to="/guia-tamanhos" className="text-white/50 hover:text-gold-400">Guia de Tamanhos</Link></li>
+              <li><Link to="/rastrear" className="text-white/50 hover:text-gold-400">Rastrear Pedido</Link></li>
               <li><Link to="/contato" className="text-white/50 hover:text-gold-400">Fale Conosco</Link></li>
             </ul>
           </div>
 
-          {/* Contato & Pagamento */}
           <div>
             <p className="text-white/20 text-xs font-mono uppercase tracking-widest mb-5">Contato & Pagamento</p>
             <ul className="space-y-2 text-sm text-white/50">

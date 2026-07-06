@@ -6,7 +6,11 @@ import HomePage from './pages/HomePage'
 import EditorPage from './pages/EditorPage'
 import DesignsPage from './pages/DesignsPage'
 import ContactPage from './pages/ContactPage'
-import CollectionPage from './pages/CollectionPage' // ← import
+import CollectionPage from './pages/CollectionPage'
+import ComoComprarPage from './pages/ComoComprarPage'
+import TrocasPage from './pages/TrocasPage'
+import GuiaTamanhosPage from './pages/GuiaTamanhosPage'
+import RastrearPage from './pages/RastrearPage'
 
 export default function App() {
   return (
@@ -32,7 +36,11 @@ export default function App() {
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/designs" element={<DesignsPage />} />
           <Route path="/contato" element={<ContactPage />} />
-          <Route path="/colecao-2028" element={<CollectionPage />} /> {/* ← nova rota */}
+          <Route path="/colecao-2028" element={<CollectionPage />} />
+          <Route path="/como-comprar" element={<ComoComprarPage />} />
+          <Route path="/trocas" element={<TrocasPage />} />
+          <Route path="/guia-tamanhos" element={<GuiaTamanhosPage />} />
+          <Route path="/rastrear" element={<RastrearPage />} />
         </Routes>
       </main>
       <Footer />
