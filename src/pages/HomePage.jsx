@@ -21,11 +21,12 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+        {/* Fundo com gradiente azul e círculo */}
         <div className="absolute inset-0 bg-dark-900">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-400/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gold-400/3 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
           <div className="absolute inset-0 opacity-[0.03]" style={{
-            backgroundImage: 'linear-gradient(#FFD700 1px, transparent 1px), linear-gradient(90deg, #FFD700 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
             backgroundSize: '60px 60px'
           }} />
         </div>
@@ -76,8 +77,18 @@ export default function HomePage() {
       </section>
 
       {/* ── DESTAQUES DO MÊS ── */}
-      <section className="py-20 bg-dark-800">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="relative py-20 overflow-hidden">
+        {/* Fundo com gradiente azul e círculo */}
+        <div className="absolute inset-0 bg-dark-900">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.02]" style={{
+            backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center mb-12">
             <div>
               <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-2">Destaques do Mês</span>
@@ -103,8 +114,18 @@ export default function HomePage() {
       </section>
 
       {/* ── DIFERENCIAL LUA ALFA ── */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="relative py-24 overflow-hidden">
+        {/* Fundo com gradiente azul e círculo */}
+        <div className="absolute inset-0 bg-dark-900">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-500/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.02]" style={{
+            backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-3">Diferencial LUA ALFA</span>

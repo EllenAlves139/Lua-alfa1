@@ -54,9 +54,18 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
+    <div className="min-h-screen pt-28 pb-20 relative overflow-hidden">
+      {/* Fundo azul */}
+      <div className="absolute inset-0 bg-dark-900">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-2">Suporte</span>
           <h1 className="font-display text-5xl md:text-6xl tracking-wider mb-3">SUPORTE</h1>
@@ -66,23 +75,19 @@ export default function ContactPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* ─── INFORMAÇÕES (ESQUERDA) ─── */}
           <div className="space-y-8">
             <div>
               <h3 className="text-white/20 text-xs font-mono uppercase tracking-widest mb-2">E-MAIL</h3>
               <p className="text-white text-sm">contato@luaalfa.com.br</p>
             </div>
-
             <div>
               <h3 className="text-white/20 text-xs font-mono uppercase tracking-widest mb-2">WHATSAPP</h3>
               <p className="text-white text-sm">+55 (31) 9 9999-9999</p>
             </div>
-
             <div>
               <h3 className="text-white/20 text-xs font-mono uppercase tracking-widest mb-2">LOCALIZAÇÃO</h3>
               <p className="text-white text-sm">Centro, 147, Muriaé-MG</p>
             </div>
-
             <div>
               <h3 className="text-white/20 text-xs font-mono uppercase tracking-widest mb-2">HORÁRIO DE ATENDIMENTO</h3>
               <div className="space-y-1 text-sm text-white/60">
@@ -93,7 +98,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* ─── FORMULÁRIO (DIREITA) ─── */}
           <div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -107,7 +111,6 @@ export default function ContactPage() {
                   className="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
                 />
               </div>
-
               <div>
                 <label className="block text-white/30 text-xs font-mono uppercase tracking-widest mb-2">E-MAIL</label>
                 <input
@@ -119,7 +122,6 @@ export default function ContactPage() {
                   className="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
                 />
               </div>
-
               <div>
                 <label className="block text-white/30 text-xs font-mono uppercase tracking-widest mb-2">ASSUNTO</label>
                 <input
@@ -131,7 +133,6 @@ export default function ContactPage() {
                   className="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors"
                 />
               </div>
-
               <div>
                 <label className="block text-white/30 text-xs font-mono uppercase tracking-widest mb-2">MENSAGEM</label>
                 <textarea
@@ -143,7 +144,6 @@ export default function ContactPage() {
                   className="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 transition-colors resize-none"
                 />
               </div>
-
               <button
                 type="submit"
                 disabled={loading}

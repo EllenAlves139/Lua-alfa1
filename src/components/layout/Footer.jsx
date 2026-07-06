@@ -8,8 +8,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-dark-900 text-sm">🌙</div>
+            <div className="flex items-center gap-3 mb-4">
+              <img 
+                src="/logo.png" 
+                alt="LUA ALFA" 
+                className="w-14 h-14 object-contain" 
+              />
               <span className="font-display text-2xl tracking-[0.15em]">LUA <span className="text-gold-400">ALFA</span></span>
             </div>
             <p className="text-white/40 text-sm leading-relaxed">

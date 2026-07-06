@@ -5,10 +5,10 @@ export default {
     extend: {
       colors: {
         gold: {
-          300: '#FFE680',
-          400: '#FFD700',
-          500: '#E6C200',
-          600: '#B89600',
+          300: '#66CCFF', // azul claro
+          400: '#00A3FF', // azul principal (era #FFD700)
+          500: '#0080CC',
+          600: '#005C99',
         },
         dark: {
           900: '#0A0A0A',
@@ -49,12 +49,12 @@ export default {
           '50%': { transform: 'translateY(-12px)' },
         },
         glowPulse: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(255,215,0,0.3)' },
-          '50%': { boxShadow: '0 0 40px rgba(255,215,0,0.6)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(0, 163, 255, 0.3)' }, // azul
+          '50%': { boxShadow: '0 0 40px rgba(0, 163, 255, 0.6)' },
         },
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, #FFD700 0%, #FFF176 50%, #FFD700 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #00A3FF 0%, #66CCFF 50%, #00A3FF 100%)',
         'dark-gradient': 'linear-gradient(180deg, #0A0A0A 0%, #111111 100%)',
         'card-gradient': 'linear-gradient(145deg, #1A1A1A 0%, #111111 100%)',
       }

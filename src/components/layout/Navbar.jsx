@@ -29,9 +29,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-dark-900 font-bold text-sm">
-            🌙
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="LUA ALFA" 
+            className="w-14 h-14 object-contain" 
+          />
           <span className="font-display text-2xl tracking-[0.15em] text-white">
             LUA <span className="text-gold-400">ALFA</span>
           </span>
@@ -48,9 +50,12 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <span className="text-gold-400 text-xs font-mono border border-gold-400/30 rounded-full px-3 py-1">
+          <Link 
+            to="/colecao-2028" 
+            className="text-gold-400 text-xs font-mono border border-gold-400/30 rounded-full px-3 py-1 hover:bg-gold-400/10 transition-colors"
+          >
             NOVA COLEÇÃO 2028
-          </span>
+          </Link>
         </div>
 
         {/* CTA */}
@@ -71,17 +76,22 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-dark-800 border-t border-white/5 px-6 py-6 flex flex-col gap-5">
+        <div className="md:hidden bg-dark-900/98 backdrop-blur-lg border-t border-white/10 px-6 py-6 flex flex-col gap-5">
           {links.map(l => (
             <Link
               key={l.to}
               to={l.to}
-              className={`nav-link text-base ${pathname === l.to ? 'text-gold-400' : ''}`}
+              className={`nav-link text-base py-2 ${
+                pathname === l.to ? 'text-gold-400 border-l-2 border-gold-400 pl-3' : 'text-white/70 hover:text-white'
+              }`}
             >
               {l.label}
             </Link>
           ))}
-          <Link to="/editor" className="btn-gold text-center mt-2">
+          <Link to="/colecao-2028" className="text-gold-400 text-sm font-mono border border-gold-400/30 rounded-full px-3 py-1 text-center hover:bg-gold-400/10 transition-colors">
+            NOVA COLEÇÃO 2028
+          </Link>
+          <Link to="/editor" className="btn-gold text-center mt-2 py-3">
             PERSONALIZAR AGORA
           </Link>
         </div>

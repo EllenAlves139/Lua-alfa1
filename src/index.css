@@ -36,10 +36,8 @@
 }
 
 @layer components {
-  .btn-gold {
-    @apply bg-gold-400 text-dark-900 font-body font-semibold px-6 py-3 rounded-full
-           hover:bg-gold-300 active:scale-95 transition-all duration-200
-           shadow-lg hover:shadow-gold-400/40;
+.btn-gold {
+    @apply bg-gold-400 text-white font-body font-semibold px-6 py-3 rounded-full hover:bg-gold-300 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-gold-400/40;
   }
 
   .btn-outline-gold {
@@ -67,14 +65,14 @@
     @apply font-body font-medium text-sm text-white/60 hover:text-gold-400 transition-colors duration-200 tracking-wide;
   }
 
-  .shimmer-gold {
-    background: linear-gradient(90deg, #FFD700 0%, #FFF176 50%, #FFD700 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s infinite;
-  }
+    .shimmer-gold {
+      background: linear-gradient(90deg, #00A3FF 0%, #66CCFF 50%, #00A3FF 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s infinite;
+    }
 }
 
 @layer utilities {
@@ -82,10 +80,10 @@
     text-wrap: balance;
   }
 
-  .border-gold-glow {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
-    border-color: rgba(255, 215, 0, 0.3);
-  }
+    .border-gold-glow {
+      box-shadow: 0 0 30px rgba(0, 163, 255, 0.15);
+      border-color: rgba(0, 163, 255, 0.3);
+    }
 
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");

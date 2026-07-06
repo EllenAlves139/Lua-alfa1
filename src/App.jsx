@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage'
 import EditorPage from './pages/EditorPage'
 import DesignsPage from './pages/DesignsPage'
 import ContactPage from './pages/ContactPage'
+import CollectionPage from './pages/CollectionPage' // ← import
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/designs" element={<DesignsPage />} />
           <Route path="/contato" element={<ContactPage />} />
+          <Route path="/colecao-2028" element={<CollectionPage />} /> {/* ← nova rota */}
         </Routes>
       </main>
       <Footer />

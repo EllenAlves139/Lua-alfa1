@@ -9,7 +9,6 @@ import { supabase } from '../lib/supabase'
 import { HexColorPicker } from "react-colorful"
 import Shirt3D from '../components/Shirt3D'
 
-// Cores, tamanhos...
 const SHIRT_COLORS = [
   { hex: '#FFFFFF', label: 'Branco' },
   { hex: '#F5F5F0', label: 'Off-white' },
@@ -27,7 +26,6 @@ const SHIRT_COLORS = [
 
 const SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XGG']
 
-// ─── MODELOS 3D DISPONÍVEIS ───
 const MODELS = [
   { id: 'tshirt', name: 'Camiseta', path: '/models/tshirt-mannequin.glb', icon: '👕' },
   { id: 'hoodie', name: 'Moletom com Capuz', path: '/models/hoodie_with_hood_up.glb', icon: '🧥' },
@@ -71,7 +69,6 @@ const AI_GENERATED_SAMPLES = [
 ]
 
 export default function EditorPage() {
-  // ─── ESTADOS ───
   const [mode, setMode] = useState('upload')
   const [shirtColor, setShirtColor] = useState('#FFFFFF')
   const [size, setSize] = useState('M')
@@ -89,7 +86,6 @@ export default function EditorPage() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [showOrderForm, setShowOrderForm] = useState(false)
 
-  // ─── DROPZONE ───
   const onDrop = useCallback(files => {
     const file = files[0]
     if (!file) return
@@ -106,7 +102,6 @@ export default function EditorPage() {
 
   const currentArt = mode === 'upload' ? uploadedImage : aiResult
 
-  // ─── IA ───
   function toggleAiStyle(id) {
     setAiStyle(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
@@ -145,19 +140,16 @@ export default function EditorPage() {
     toast('Combinação aleatória selecionada ✨')
   }
 
-  // ─── UPLOAD PARA SUPABASE ───
   async function uploadImageToSupabase(base64Data) {
     try {
       const response = await fetch(base64Data)
       const blob = await response.blob()
       const fileExt = blob.type.split('/')[1] || 'png'
       const fileName = `design-${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
-
       const { error } = await supabase.storage
         .from('camisas-artes')
         .upload(fileName, blob)
       if (error) throw error
-
       const { data: publicUrlData } = supabase.storage
         .from('camisas-artes')
         .getPublicUrl(fileName)
@@ -168,7 +160,6 @@ export default function EditorPage() {
     }
   }
 
-  // ─── PEDIDO ───
   async function handleOrder() {
     if (!customerName || !customerEmail) {
       toast.error('Preencha nome e e-mail')
@@ -273,16 +264,23 @@ ${finalArtUrl}`
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+      {/* Fundo azul */}
+      <div className="absolute inset-0 bg-dark-900">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: 'linear-gradient(#00A3FF 1px, transparent 1px), linear-gradient(90deg, #00A3FF 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
+      </div>
 
-        {/* Header */}
+      <div className="relative max-w-7xl mx-auto px-6">
         <div className="mb-8">
           <span className="text-gold-400 text-xs font-mono tracking-widest uppercase block mb-2">Editor</span>
           <h1 className="font-display text-4xl md:text-5xl tracking-wider">PERSONALIZAR CAMISA</h1>
         </div>
 
-        {/* Mode selector */}
         <div className="flex gap-2 mb-8 flex-wrap">
           {MODES.map(m => (
             <button
@@ -300,11 +298,7 @@ ${finalArtUrl}`
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-          {/* ── LEFT PANEL ── */}
           <div className="space-y-6">
-
-            {/* ─── ESCOLHER MODELO ─── */}
             <div className="glass-card p-6">
               <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ESCOLHER MODELO</h3>
               <div className="grid grid-cols-3 gap-3">
@@ -328,7 +322,6 @@ ${finalArtUrl}`
               </div>
             </div>
 
-            {/* Mode: Upload */}
             {mode === 'upload' && (
               <div className="glass-card p-6">
                 <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">ENVIAR SUA ARTE</h3>
@@ -341,8 +334,7 @@ ${finalArtUrl}`
                   <input {...getInputProps()} />
                   {uploadedImage ? (
                     <div className="space-y-3">
-                      <img src={uploadedImage} alt="Upload" className="w-32 h-32 object-contain mx-auto rounded-xl" />
-                      <p className="text-gold-400 text-sm">Arte carregada! Clique para trocar.</p>
+                      <p className="text-gold-400 text-sm">✅ Arte carregada com sucesso! Clique para trocar.</p>
                     </div>
                   ) : (
                     <>
@@ -373,11 +365,9 @@ ${finalArtUrl}`
               </div>
             )}
 
-            {/* Mode: AI */}
             {mode === 'ai' && (
               <div className="glass-card p-6 space-y-6">
                 <h3 className="font-display text-xl tracking-wider text-gold-400">GERADOR DE ARTE IA</h3>
-
                 <div>
                   <p className="text-white/50 text-sm mb-3">Estilo</p>
                   <div className="flex flex-wrap gap-2">
@@ -394,7 +384,6 @@ ${finalArtUrl}`
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <p className="text-white/50 text-sm mb-3">Elementos</p>
                   <div className="flex flex-wrap gap-2">
@@ -411,7 +400,6 @@ ${finalArtUrl}`
                     ))}
                   </div>
                 </div>
-
                 <div className="flex gap-3">
                   <button
                     onClick={generateAI}
@@ -430,11 +418,8 @@ ${finalArtUrl}`
               </div>
             )}
 
-            {/* Shirt Options (apenas cor e tamanho) */}
             <div className="glass-card p-6">
               <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">CONFIGURAÇÕES</h3>
-
-              {/* Color */}
               <div className="mb-5">
                 <p className="text-white/50 text-sm mb-3">Cor da camisa</p>
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -464,8 +449,6 @@ ${finalArtUrl}`
                   className="w-full bg-dark-600 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50"
                 />
               </div>
-
-              {/* Size */}
               <div>
                 <p className="text-white/50 text-sm mb-3">Tamanho</p>
                 <div className="flex gap-2">
@@ -485,12 +468,9 @@ ${finalArtUrl}`
             </div>
           </div>
 
-          {/* ── RIGHT PANEL: Preview ── */}
           <div className="space-y-6">
             <div className="glass-card p-6">
-              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">
-                PRÉ-VISUALIZAÇÃO 3D
-              </h3>
+              <h3 className="font-display text-xl tracking-wider mb-5 text-gold-400">PRÉ-VISUALIZAÇÃO 3D</h3>
               <Shirt3D
                 color={shirtColor}
                 image={currentArt}
@@ -499,7 +479,6 @@ ${finalArtUrl}`
               />
             </div>
 
-            {/* Order form */}
             {!showOrderForm ? (
               <button
                 onClick={() => setShowOrderForm(true)}

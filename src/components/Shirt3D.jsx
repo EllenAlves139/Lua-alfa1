@@ -17,7 +17,7 @@ function Model({ color, image, scale, modelPath }) {
     scene.position.set(-center.x * sc, -center.y * sc, -center.z * sc);
   }, [scene]);
 
-  // ─── GERA A TEXTURA ───
+  // ─── GERA TEXTURA A PARTIR DA IMAGEM (via canvas) ───
   useEffect(() => {
     if (!image) {
       setTexture(null);
@@ -36,6 +36,7 @@ function Model({ color, image, scale, modelPath }) {
     img.src = image;
 
     img.onload = () => {
+      // Calcula o tamanho da estampa com base na escala
       const baseSize = size * 0.4;
       const scaleFactor = Math.max(0.1, scale / 100);
       const drawSize = baseSize * scaleFactor;
@@ -56,10 +57,11 @@ function Model({ color, image, scale, modelPath }) {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.needsUpdate = true;
       setTexture(tex);
+      console.log("✅ Textura gerada via canvas");
     };
 
     img.onerror = (err) => {
-      console.error("Erro ao carregar imagem:", err);
+      console.error("❌ Erro ao carregar imagem para canvas:", err);
       setTexture(null);
     };
   }, [image, scale]);
@@ -69,8 +71,9 @@ function Model({ color, image, scale, modelPath }) {
     scene.traverse((child) => {
       if (child.isMesh && child.material) {
         if (texture) {
+          // Aplica textura em todos os materiais
           child.material.map = texture;
-          child.material.color.set("#ffffff");
+          child.material.color.set("#ffffff"); // branco para não distorcer
         } else {
           child.material.map = null;
           child.material.color.set(color);
