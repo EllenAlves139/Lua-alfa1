@@ -6,19 +6,19 @@ const COLLECTION_PRODUCTS = [
   {
     id: 101,
     name: 'Nocturnal Alpha Jacket',
-    category: 'Adultos',
+    category: 'Adolescentes',
     type: 'Personalizáveis',
     price: 'R$ 249,90',
-    img: '/imagens/2.png',
+    img: '/imagens/adolesente.png',
     badge: 'Coleção 2028'
   },
   {
     id: 102,
     name: 'Lunar Eclipse Tee',
-    category: 'Adultos',
+    category: 'Crianças',
     type: 'Com Estampa',
     price: 'R$ 179,90',
-    img: '/imagens/16.png',
+    img: '/imagens/crianca.png',
     badge: 'Coleção 2028'
   },
   {
@@ -27,7 +27,7 @@ const COLLECTION_PRODUCTS = [
     category: 'Adultos',
     type: 'Com Estampa',
     price: 'R$ 199,90',
-    img: '/imagens/18.png',
+    img: '/imagens/aduto.png',
     badge: 'Coleção 2028'
   },
   {
@@ -36,16 +36,16 @@ const COLLECTION_PRODUCTS = [
     category: 'Adultos',
     type: 'Sem Estampa',
     price: 'R$ 159,90',
-    img: '/imagens/20.png',
+    img: '/imagens/aduto (5).png',
     badge: 'Coleção 2028'
   },
   {
     id: 105,
     name: 'Nightshade Jacket',
-    category: 'Adultos',
+    category: 'Crianças',
     type: 'Personalizáveis',
     price: 'R$ 299,90',
-    img: '/imagens/24.png',
+    img: '/imagens/crianca (4).png',
     badge: 'Coleção 2028'
   },
   {
@@ -54,52 +54,61 @@ const COLLECTION_PRODUCTS = [
     category: 'Adultos',
     type: 'Com Estampa',
     price: 'R$ 189,90',
-    img: '/imagens/22.png',
+    img: '/imagens/aduto (10).png',
     badge: 'Coleção 2028'
   },
-
   {
     id: 107,
-     name: 'Lunar Eclipse Tee',
-     category: 'Adultos',
-     type: 'Com Estampa',
-     price: 'R$ 179,90',
-     img: '/imagens/23.png',
-     badge: 'Coleção 2028'
-   },
-
-   {
-     id: 108,
-     name: 'Urban Wolf Oversized',
-     category: 'Crianças',
-     type: 'Com Estampa',
-     price: 'R$ 149,90',
-     img: '/imagens/15.png',
-     badge: 'Coleção 2028'
-   },
-
-   {
-     id: 109,
-     name: 'Alpha Basic Hoodie',
-     category: 'Adolescentes',
-     type: 'Sem Estampa',
-     price: 'R$ 159,90',
-     img: '/imagens/14.png',
-     badge: 'Coleção 2028'
-   },
-
-   {
-     id: 110,
-     name: 'Nightshade Jacket',
-     category: 'Adolescentes',
-     type: 'Personalizáveis',
-     price: 'R$ 299,90',
-     img: '/imagens/21.png',
-     badge: 'Coleção 2028'
-   },
+    name: 'Lunar Eclipse Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 179,90',
+    img: '/imagens/aduto (9).png',
+    badge: 'Coleção 2028'
+  },
+  {
+    id: 108,
+    name: 'Urban Wolf Oversized',
+    category: 'Crianças',
+    type: 'Com Estampa',
+    price: 'R$ 149,90',
+    img: '/imagens/crianca (2).png',
+    badge: 'Coleção 2028'
+  },
+  {
+    id: 109,
+    name: 'Alpha Basic Hoodie',
+    category: 'Adolescentes',
+    type: 'Sem Estampa',
+    price: 'R$ 159,90',
+    img: '/imagens/adolesente (15).png',
+    badge: 'Coleção 2028'
+  },
+  {
+    id: 110,
+    name: 'Nightshade Jacket',
+    category: 'Adolescentes',
+    type: 'Personalizáveis',
+    price: 'R$ 299,90',
+    img: '/imagens/adolesente (2).png',
+    badge: 'Coleção 2028'
+  },
 ]
 
+// Número do WhatsApp da loja
+const WHATSAPP_NUMBER = '5532998140482'
+
 export default function CollectionPage() {
+  // Função para gerar link do WhatsApp com mensagem do produto
+  const getWhatsAppLink = (product) => {
+    const message = `Olá! Tenho interesse no produto *${product.name}* da Coleção 2028.%0A%0A` +
+      `• Categoria: ${product.category}%0A` +
+      `• Tipo: ${product.type}%0A` +
+      `• Preço: ${product.price}%0A%0A` +
+      `Gostaria de saber mais sobre disponibilidade e formas de pagamento.`
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`
+  }
+
   return (
     <div className="min-h-screen pt-28 pb-20 relative overflow-hidden">
       {/* Fundo azul */}
@@ -150,12 +159,25 @@ export default function CollectionPage() {
                   <p className="text-white/40 text-[10px] font-mono uppercase tracking-widest">{p.category} - {p.type}</p>
                   <p className="text-white font-display text-lg leading-tight">{p.name}</p>
                   <p className="text-gold-400 font-body font-bold text-lg">{p.price}</p>
-                  <Link
-                    to="/editor"
-                    className="mt-2 inline-block w-full text-center bg-gold-400 text-dark-900 text-xs font-semibold py-2 rounded-full hover:bg-gold-300 transition-colors"
-                  >
-                    PERSONALIZAR AGORA
-                  </Link>
+
+                  {/* Botão condicional */}
+                  {p.type === 'Personalizáveis' ? (
+                    <Link
+                      to="/editor"
+                      className="mt-2 inline-block w-full text-center bg-gold-400 text-dark-900 text-xs font-semibold py-2 rounded-full hover:bg-gold-300 transition-colors"
+                    >
+                      PERSONALIZAR AGORA
+                    </Link>
+                  ) : (
+                    <a
+                      href={getWhatsAppLink(p)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block w-full text-center border border-gold-400 text-gold-400 text-xs font-semibold py-2 rounded-full hover:bg-gold-400 hover:text-dark-900 transition-colors"
+                    >
+                      COMPRAR AGORA
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

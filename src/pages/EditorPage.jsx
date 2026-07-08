@@ -442,36 +442,39 @@ export default function EditorPage() {
               </div>
             </div>
 
+            {/* SEÇÃO DE CORES CORRIGIDA */}
             <div className="glass-card space-y-5 p-5">
               <h2 className="font-display text-3xl tracking-wide">Configurações</h2>
 
               <Field label="Cor da peça">
                 <div className="flex flex-wrap gap-2">
-                  {SHIRT_COLORS.map(color => (
+                  {SHIRT_COLORS.map(({ hex, label }) => (
                     <button
+                      key={hex}
                       type="button"
-                      key={color.hex}
-                      aria-label={color.label}
-                      onClick={() => setShirtColor(color.hex)}
+                      aria-label={label}
+                      onClick={() => setShirtColor(hex)}
                       className={`h-8 w-8 rounded-full border-2 transition hover:scale-110 ${
-                        shirtColor === color.hex ? 'border-gold-400 scale-110' : 'border-white/10'
+                        shirtColor === hex ? 'border-gold-400 scale-110' : 'border-white/10'
                       }`}
-                      style={{ backgroundColor: color.hex }}
+                      style={{ backgroundColor: hex }}
                     />
                   ))}
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-[160px_1fr]">
-                  <HexColorPicker color={shirtColor} onChange={setShirtColor} className="!h-32 !w-full" />
-                  <div className="space-y-3">
-                    <input
-                      value={shirtColor}
-                      onChange={event => setShirtColor(event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-dark-600 px-4 py-3 text-sm text-white outline-none focus:border-gold-400/60"
-                    />
-                    <div className="flex items-center gap-2 text-white/45">
-                      <Palette size={16} /> Ajuste manual por HEX
-                    </div>
-                  </div>
+                <div className="mt-3 flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="color"
+                    value={shirtColor}
+                    onChange={e => setShirtColor(e.target.value)}
+                    className="h-12 w-full sm:w-20 rounded-xl border border-white/10 bg-dark-600 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={shirtColor}
+                    onChange={e => setShirtColor(e.target.value)}
+                    className="flex-1 rounded-xl border border-white/10 bg-dark-600 px-4 py-2 text-sm text-white outline-none focus:border-gold-400/60"
+                    placeholder="#FFFFFF"
+                  />
                 </div>
               </Field>
 
@@ -506,14 +509,15 @@ export default function EditorPage() {
                 </button>
               </div>
 
-              <Shirt3D
-                color={shirtColor}
-                image={currentArt}
-                scale={stampScale}
-                stampPosition={stampPosition}
-                stampRotation={stampRotation}
-                modelPath={selectedModel.path}
-              />
+                        <Shirt3D
+  key={`${selectedModel.id}-${shirtColor}-${currentArt}`}
+  color={shirtColor}
+  image={currentArt}
+  scale={stampScale}
+  stampPosition={stampPosition}
+  stampRotation={stampRotation}
+  modelPath={selectedModel.path}
+/>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">

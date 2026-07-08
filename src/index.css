@@ -20,29 +20,42 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* ===== Scrollbar personalizada ===== */
+  /* Chrome, Edge, Safari */
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: #111111;
   }
+
   ::-webkit-scrollbar-thumb {
-    background: #FFD700;
+    background: #00A3FF;
+    /* azul principal */
     border-radius: 3px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: #E6C200;
+    background: #66CCFF;
+    /* azul claro */
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #00A3FF #111111;
   }
 }
 
 @layer components {
-.btn-gold {
+  .btn-gold {
     @apply bg-gold-400 text-white font-body font-semibold px-6 py-3 rounded-full hover:bg-gold-300 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-gold-400/40;
   }
 
   .btn-outline-gold {
-    @apply border border-gold-400 text-gold-400 font-body font-semibold px-6 py-3 rounded-full
-           hover:bg-gold-400 hover:text-dark-900 active:scale-95 transition-all duration-200;
+    @apply border border-gold-400 text-gold-400 font-body font-semibold px-6 py-3 rounded-full hover:bg-gold-400 hover:text-dark-900 active:scale-95 transition-all duration-200;
   }
 
   .glass-card {
@@ -65,14 +78,14 @@
     @apply font-body font-medium text-sm text-white/60 hover:text-gold-400 transition-colors duration-200 tracking-wide;
   }
 
-    .shimmer-gold {
-      background: linear-gradient(90deg, #00A3FF 0%, #66CCFF 50%, #00A3FF 100%);
-      background-size: 200% 100%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmer 3s infinite;
-    }
+  .shimmer-gold {
+    background: linear-gradient(90deg, #00A3FF 0%, #66CCFF 50%, #00A3FF 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s infinite;
+  }
 }
 
 @layer utilities {
@@ -80,12 +93,27 @@
     text-wrap: balance;
   }
 
-    .border-gold-glow {
-      box-shadow: 0 0 30px rgba(0, 163, 255, 0.15);
-      border-color: rgba(0, 163, 255, 0.3);
-    }
+  .border-gold-glow {
+    box-shadow: 0 0 30px rgba(0, 163, 255, 0.15);
+    border-color: rgba(0, 163, 255, 0.3);
+  }
 
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
   }
 }
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease forwards;
+}
+

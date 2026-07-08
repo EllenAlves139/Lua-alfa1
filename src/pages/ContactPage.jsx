@@ -17,21 +17,33 @@ export default function ContactPage() {
     }
     setLoading(true)
 
-    const { error } = await supabase.from('contacts').insert({
-      name: form.name,
-      email: form.email,
-      subject: form.subject,
-      message: form.message,
-    })
+    try {
+      const { data, error } = await supabase.from('contacts').insert({
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+      })
 
-    setLoading(false)
-    if (error) {
-      toast.error('Erro ao enviar. Tente novamente.')
-      return
+      if (error) {
+        console.error('Erro Supabase:', error)
+        // Se falhar, tenta enviar via WhatsApp como fallback
+        const whatsappMsg = `*NOVO CONTATO VIA SITE*%0A%0A*Nome:* ${form.name}%0A*E-mail:* ${form.email}%0A*Assunto:* ${form.subject}%0A*Mensagem:* ${form.message}`
+        window.open(`https://wa.me/5532981480482?text=${whatsappMsg}`, '_blank')
+        toast.success('Mensagem enviada via WhatsApp! (Não foi possível salvar no banco)')
+        setSent(true)
+        setLoading(false)
+        return
+      }
+
+      setSent(true)
+      toast.success('Mensagem enviada! Responderemos em breve.')
+    } catch (err) {
+      console.error('Erro inesperado:', err)
+      toast.error('Erro ao enviar. Tente novamente ou pelo WhatsApp.')
+    } finally {
+      setLoading(false)
     }
-
-    setSent(true)
-    toast.success('Mensagem enviada! Responderemos em breve.')
   }
 
   if (sent) {

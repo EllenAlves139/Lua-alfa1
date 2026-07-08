@@ -1,21 +1,264 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search } from 'lucide-react'
+import { Search, ShoppingCart, ShoppingBag } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { useCartStore } from '../store/cartStore'
 
+// ════════════════════════════════════════════════════════════════════
+// PRODUTOS COM AS NOVAS IMAGENS (ADULTO, ADOLESCENTE, CRIANÇA)
+// ════════════════════════════════════════════════════════════════════
 const PRODUCTS = [
-  { id: 1, name: 'Luna Core Tee', category: 'Adultos', type: 'Com Estampa', price: 'R$ 149,90', img: '/imagens/22.png' },
-  { id: 2, name: 'Vector Alpha Tee', category: 'Adultos', type: 'Personalizáveis', price: 'R$ 159,90', img: '/imagens/24.png' },
-  { id: 3, name: 'Pure Light Basic', category: 'Adultos', type: 'Sem Estampa', price: 'R$ 79,90', img: '/imagens/18.png' },
-  { id: 4, name: 'Urban Wolf Tee', category: 'Adultos', type: 'Com Estampa', price: 'R$ 139,90', img: '/imagens/20.png' },
+  // ── ADULTOS ──
+  {
+    id: 1,
+    name: 'Luna Core Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 149,90',
+    img: '/imagens/aduto.png'
+  },
+  {
+    id: 2,
+    name: 'Vector Alpha Tee',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 159,90',
+    img: '/imagens/aduto (3).png'
+  },
+  {
+    id: 3,
+    name: 'Pure Light Basic',
+    category: 'Adultos',
+    type: 'Sem Estampa',
+    price: 'R$ 79,90',
+    img: '/imagens/aduto (5).png'
+  },
+  {
+    id: 4,
+    name: 'Urban Wolf Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 139,90',
+    img: '/imagens/aduto (6).png'
+  },
+  {
+    id: 5,
+    name: 'Nightshade Hoodie',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 229,90',
+    img: '/imagens/aduto (7).png'
+  },
+  {
+    id: 6,
+    name: 'Classic Black Tee',
+    category: 'Adultos',
+    type: 'Sem Estampa',
+    price: 'R$ 69,90',
+    img: '/imagens/aduto (8).png'
+  },
+  {
+    id: 7,
+    name: 'Nocturnal Jacket',
+    category: 'Adultos',
+    type: 'Personalizáveis',
+    price: 'R$ 299,90',
+    img: '/imagens/aduto (9).png'
+  },
+  {
+    id: 8,
+    name: 'Cosmic Bumblebotta',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 189,90',
+    img: '/imagens/aduto (10).png'
+  },
+  {
+    id: 9,
+    name: 'Lunar Eclipse Tee',
+    category: 'Adultos',
+    type: 'Com Estampa',
+    price: 'R$ 179,90',
+    img: '/imagens/aduto (11).png'
+  },
+
+  // ── ADOLESCENTES ──
+  {
+    id: 10,
+    name: 'Alpha Basic Hoodie',
+    category: 'Adolescentes',
+    type: 'Sem Estampa',
+    price: 'R$ 149,90',
+    img: '/imagens/adolesente.png'
+  },
+  {
+    id: 11,
+    name: 'Urban Wolf Oversized',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 159,90',
+    img: '/imagens/adolesente (6).png'
+  },
+  {
+    id: 12,
+    name: 'Neon Light Tee',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 129,90',
+    img: '/imagens/adolesente (9).png'
+  },
+  {
+    id: 13,
+    name: 'Street Style Hoodie',
+    category: 'Adolescentes',
+    type: 'Personalizáveis',
+    price: 'R$ 199,90',
+    img: '/imagens/adolesente (10).png'
+  },
+  {
+    id: 14,
+    name: 'Basic Cotton Tee',
+    category: 'Adolescentes',
+    type: 'Sem Estampa',
+    price: 'R$ 59,90',
+    img: '/imagens/adolesente (11).png'
+  },
+  {
+    id: 15,
+    name: 'Skater Mesh Tee',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 109,90',
+    img: '/imagens/adolesente (12).png'
+  },
+  {
+    id: 16,
+    name: 'Graffiti Hoodie',
+    category: 'Adolescentes',
+    type: 'Personalizáveis',
+    price: 'R$ 189,90',
+    img: '/imagens/adolesente (13).png'
+  },
+  {
+    id: 17,
+    name: 'Retro Wave Tee',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 139,90',
+    img: '/imagens/adolesente (14).png'
+  },
+  {
+    id: 18,
+    name: 'Winter Warm Hoodie',
+    category: 'Adolescentes',
+    type: 'Sem Estampa',
+    price: 'R$ 169,90',
+    img: '/imagens/adolesente (15).png'
+  },
+  {
+    id: 19,
+    name: 'Sporty Crewneck',
+    category: 'Adolescentes',
+    type: 'Personalizáveis',
+    price: 'R$ 159,90',
+    img: '/imagens/adolesente (16).png'
+  },
+  {
+    id: 20,
+    name: 'Bold Graphic Tee',
+    category: 'Adolescentes',
+    type: 'Com Estampa',
+    price: 'R$ 119,90',
+    img: '/imagens/adolesente (17).png'
+  },
+
+  // ── CRIANÇAS ──
+  {
+    id: 21,
+    name: 'Mini Wolf Tee',
+    category: 'Crianças',
+    type: 'Com Estampa',
+    price: 'R$ 89,90',
+    img: '/imagens/crianca.png'
+  },
+  {
+    id: 22,
+    name: 'Happy Bear Hoodie',
+    category: 'Crianças',
+    type: 'Sem Estampa',
+    price: 'R$ 129,90',
+    img: '/imagens/crianca (2).png'
+  },
+  {
+    id: 23,
+    name: 'Rainbow Basic Tee',
+    category: 'Crianças',
+    type: 'Sem Estampa',
+    price: 'R$ 49,90',
+    img: '/imagens/crianca (3).png'
+  },
+  {
+    id: 24,
+    name: 'Dino Adventure Tee',
+    category: 'Crianças',
+    type: 'Com Estampa',
+    price: 'R$ 99,90',
+    img: '/imagens/crianca (4).png'
+  },
+  {
+    id: 25,
+    name: 'Star Rider Hoodie',
+    category: 'Crianças',
+    type: 'Personalizáveis',
+    price: 'R$ 149,90',
+    img: '/imagens/crianca (5).png'
+  },
+  {
+    id: 26,
+    name: 'Animal Print Tee',
+    category: 'Crianças',
+    type: 'Com Estampa',
+    price: 'R$ 79,90',
+    img: '/imagens/crianca (6).png'
+  },
+  {
+    id: 27,
+    name: 'Cozy Fleece Hoodie',
+    category: 'Crianças',
+    type: 'Sem Estampa',
+    price: 'R$ 119,90',
+    img: '/imagens/crianca (7).png'
+  },
+  {
+    id: 28,
+    name: 'Space Explorer Tee',
+    category: 'Crianças',
+    type: 'Com Estampa',
+    price: 'R$ 89,90',
+    img: '/imagens/crianca (8).png'
+  },
+  {
+    id: 29,
+    name: 'Cute Monster Hoodie',
+    category: 'Crianças',
+    type: 'Personalizáveis',
+    price: 'R$ 139,90',
+    img: '/imagens/crianca (9).png'
+  },
+  
+  
 ]
 
 const CATEGORIES = ['Todas as Camisetas', 'Adultos', 'Adolescentes', 'Crianças']
 const TYPES = ['Com Estampa', 'Sem Estampa (Básicas)', 'Personalizáveis']
 
+const WHATSAPP_NUMBER = '5532984521595'
+
 export default function DesignsPage() {
   const [category, setCategory] = useState('Todas as Camisetas')
   const [selectedTypes, setSelectedTypes] = useState([])
   const [search, setSearch] = useState('')
+  const addItem = useCartStore((state) => state.addItem)
 
   const filtered = PRODUCTS.filter(p => {
     const matchCat = category === 'Todas as Camisetas' || p.category === category
@@ -33,6 +276,20 @@ export default function DesignsPage() {
     setSelectedTypes(prev =>
       prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     )
+  }
+
+  const handleAddToCart = (product) => {
+    addItem(product)
+    toast.success(`${product.name} adicionado ao carrinho!`)
+  }
+
+  const handleBuyNow = (product) => {
+    const message = `Olá! Gostaria de comprar o produto *${product.name}*.%0A%0A` +
+      `• Categoria: ${product.category}%0A` +
+      `• Tipo: ${product.type}%0A` +
+      `• Preço: ${product.price}%0A%0A` +
+      `Quero finalizar a compra.`
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank')
   }
 
   return (
@@ -53,6 +310,7 @@ export default function DesignsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* ── SIDEBAR ── */}
           <div className="lg:col-span-1 space-y-8">
             <h1 className="font-display text-4xl tracking-wider">LOJA</h1>
             <p className="text-white/40 text-sm leading-relaxed">
@@ -90,6 +348,16 @@ export default function DesignsPage() {
                     {type}
                   </label>
                 ))}
+                <button
+                  onClick={() => {
+                    setSelectedTypes([])
+                    setCategory('Todas as Camisetas')
+                    setSearch('')
+                  }}
+                  className="mt-3 text-xs text-white/30 hover:text-gold-400 transition-colors flex items-center gap-1"
+                >
+                  <span>✕</span> Limpar filtros
+                </button>
               </div>
             </div>
 
@@ -119,15 +387,8 @@ export default function DesignsPage() {
             </div>
           </div>
 
+          {/* ── GRID DE PRODUTOS ── */}
           <div className="lg:col-span-3">
-            {filtered.some(p => p.badge) && (
-              <div className="mb-4">
-                <span className="text-gold-400 text-xs font-mono border border-gold-400/20 rounded-full px-3 py-1">
-                  Personalizável
-                </span>
-              </div>
-            )}
-
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {filtered.map(p => (
                 <div key={p.id} className="group relative rounded-2xl overflow-hidden bg-dark-700 hover:scale-[1.02] transition-transform duration-300">
@@ -138,16 +399,26 @@ export default function DesignsPage() {
                       className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
                       loading="lazy"
                     />
-                    {p.badge && (
-                      <span className="absolute top-3 left-3 bg-gold-400 text-dark-900 text-[10px] font-mono px-2 py-0.5 rounded-full">
-                        {p.badge}
-                      </span>
-                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-900/90 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3">
                       <p className="text-white/40 text-[10px] font-mono uppercase tracking-widest">{p.category} - {p.type}</p>
                       <p className="text-white font-display text-lg leading-tight">{p.name}</p>
                       <p className="text-gold-400 font-body font-bold text-lg">{p.price}</p>
+
+                      <div className="mt-2 flex gap-2">
+                        <button
+                          onClick={() => handleAddToCart(p)}
+                          className="flex-1 flex items-center justify-center gap-1 bg-gold-400 text-dark-900 text-xs font-semibold py-2 rounded-full hover:bg-gold-300 transition-colors"
+                        >
+                          <ShoppingCart size={14} /> Adicionar
+                        </button>
+                        <button
+                          onClick={() => handleBuyNow(p)}
+                          className="flex-1 flex items-center justify-center gap-1 border border-gold-400 text-gold-400 text-xs font-semibold py-2 rounded-full hover:bg-gold-400 hover:text-dark-900 transition-colors"
+                        >
+                          <ShoppingBag size={14} /> Comprar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

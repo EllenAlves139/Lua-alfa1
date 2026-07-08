@@ -1,24 +1,26 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 function ThumbnailModel({ modelPath }) {
   const { scene } = useGLTF(modelPath);
-  const ref = useRef();
+
+  // Clona a cena antes de mexer nela: o objeto do useGLTF é compartilhado (cache)
+  // e mutá-lo direto corrompe a escala/posição para outros componentes.
+  const clonedScene = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
-    if (!scene) return;
-    const box = new THREE.Box3().setFromObject(scene);
+    const box = new THREE.Box3().setFromObject(clonedScene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const maxAxis = Math.max(size.x, size.y, size.z);
+    const maxAxis = Math.max(size.x, size.y, size.z) || 1;
     const sc = 4 / maxAxis;
-    scene.scale.setScalar(sc);
-    scene.position.set(-center.x * sc, -center.y * sc, -center.z * sc);
-  }, [scene]);
+    clonedScene.scale.setScalar(sc);
+    clonedScene.position.set(-center.x * sc, -center.y * sc, -center.z * sc);
+  }, [clonedScene]);
 
-  return <primitive object={scene} ref={ref} />;
+  return <primitive object={clonedScene} />;
 }
 
 export default function ModelThumbnail({ modelPath, isActive }) {
@@ -62,7 +64,9 @@ export default function ModelThumbnail({ modelPath, isActive }) {
         <ambientLight intensity={1.5} />
         <directionalLight position={[5, 5, 5]} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={1} />
-        <ThumbnailModel modelPath={modelPath} />
+        <Suspense fallback={null}>
+          <ThumbnailModel modelPath={modelPath} />
+        </Suspense>
         {isActive && <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={2} />}
       </Canvas>
     </div>

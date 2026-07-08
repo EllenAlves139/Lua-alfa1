@@ -19,9 +19,9 @@ export default function Footer() {
               Nascemos da energia noturna. Unimos streetwear, tecnologia e personalização para quem vive a cidade depois do sol se pôr.
             </p>
             <div className="flex gap-4 mt-6">
-              <a href="#" className="text-white/40 hover:text-gold-400 transition-colors"><Instagram size={18} /></a>
-              <a href="https://wa.me/5531999999999" target="_blank" rel="noreferrer" className="text-white/40 hover:text-gold-400 transition-colors"><MessageCircle size={18} /></a>
-              <a href="mailto:contato@luaalfa.com.br" className="text-white/40 hover:text-gold-400 transition-colors"><Mail size={18} /></a>
+              <a href="https://www.instagram.com/luaalfa139/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noreferrer" className="text-white/40 hover:text-gold-400 transition-colors"><Instagram size={18} /></a>
+              <a href="https://wa.me/5532998140482" target="_blank" rel="noreferrer" className="text-white/40 hover:text-gold-400 transition-colors"><MessageCircle size={18} /></a>
+              <a href="mailto:luaalfawolf@gmail.com" className="text-white/40 hover:text-gold-400 transition-colors"><Mail size={18} /></a>
             </div>
           </div>
 
@@ -51,9 +51,10 @@ export default function Footer() {
           <div>
             <p className="text-white/20 text-xs font-mono uppercase tracking-widest mb-5">Contato & Pagamento</p>
             <ul className="space-y-2 text-sm text-white/50">
-              <li>contato@luaalfa.com.br</li>
-              <li>(31) 9 9999-9999</li>
+              <li>luaalfawolf@gmail.com</li>
+              <li>(32) 9 9814-0482</li>
               <li className="text-white/30 text-xs">Seg - Sex: 9h às 18h</li>
+               <li className="text-white/30 text-xs">Sáb - Dom: 9h às 14:30h</li>
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="text-xs bg-dark-600 px-3 py-1 rounded-full text-white/50">PIX</span>
