@@ -49,7 +49,7 @@ export default function CheckoutPage() {
       `*ITENS DO CARRINHO*%0A${itemsList}%0A%0A` +
       `*TOTAL: R$ ${total.toFixed(2)}*`
 
-    window.open(`https://wa.me/5532984521595?text=${message}`, '_blank')
+    window.open(`https://wa.me/5532998140482?text=${message}`, '_blank')
     clearCart()
     setLoading(false)
     toast.success('Pedido enviado para o WhatsApp!')

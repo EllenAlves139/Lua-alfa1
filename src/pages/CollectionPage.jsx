@@ -96,7 +96,7 @@ const COLLECTION_PRODUCTS = [
 ]
 
 // Número do WhatsApp da loja
-const WHATSAPP_NUMBER = '5532998140482'
+const WHATSAPP_NUMBER = '5532981480482'
 
 export default function CollectionPage() {
   // Função para gerar link do WhatsApp com mensagem do produto

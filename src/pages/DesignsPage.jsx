@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, ShoppingCart, ShoppingBag } from 'lucide-react'
+import {
+  Search,
+  ShoppingCart,
+  ShoppingBag,
+  Shirt,
+  Palette,
+  Sparkles,
+  Check,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useCartStore } from '../store/cartStore'
 
@@ -254,15 +262,32 @@ const TYPES = ['Com Estampa', 'Sem Estampa (Básicas)', 'Personalizáveis']
 
 const WHATSAPP_NUMBER = '5532984521595'
 
+const FILTER_TYPES = [
+  {
+    name: "Com Estampa",
+    desc: "Produtos estampados",
+    icon: Shirt,
+  },
+  {
+    name: "Sem Estampa",
+    desc: "Peças lisas",
+    icon: Sparkles,
+  },
+  {
+    name: "Personalizáveis",
+    desc: "Monte do seu jeito",
+    icon: Palette,
+  },
+]
 export default function DesignsPage() {
   const [category, setCategory] = useState('Todas as Camisetas')
-  const [selectedTypes, setSelectedTypes] = useState([])
+  const [selectedType, setSelectedType] = useState("")
   const [search, setSearch] = useState('')
   const addItem = useCartStore((state) => state.addItem)
 
   const filtered = PRODUCTS.filter(p => {
     const matchCat = category === 'Todas as Camisetas' || p.category === category
-    const matchType = selectedTypes.length === 0 || selectedTypes.includes(p.type)
+    const matchType = selectedType === "" || p.type === selectedType
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchType && matchSearch
   })
@@ -270,12 +295,6 @@ export default function DesignsPage() {
   const getCount = (cat) => {
     if (cat === 'Todas as Camisetas') return PRODUCTS.length
     return PRODUCTS.filter(p => p.category === cat).length
-  }
-
-  const toggleType = (type) => {
-    setSelectedTypes(prev =>
-      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-    )
   }
 
   const handleAddToCart = (product) => {
@@ -335,31 +354,97 @@ export default function DesignsPage() {
             </div>
 
             <div>
-              <h3 className="text-white/30 text-xs font-mono uppercase tracking-widest mb-3">Tipo</h3>
-              <div className="space-y-2">
-                {TYPES.map(type => (
-                  <label key={type} className="flex items-center gap-2 text-sm text-white/50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedTypes.includes(type)}
-                      onChange={() => toggleType(type)}
-                      className="w-4 h-4 rounded border-white/20 bg-dark-600 text-gold-400 focus:ring-gold-400 focus:ring-offset-0"
-                    />
-                    {type}
-                  </label>
-                ))}
-                <button
-                  onClick={() => {
-                    setSelectedTypes([])
-                    setCategory('Todas as Camisetas')
-                    setSearch('')
-                  }}
-                  className="mt-3 text-xs text-white/30 hover:text-gold-400 transition-colors flex items-center gap-1"
+  <h3 className="text-white/30 text-xs font-mono uppercase tracking-widest mb-4">
+    Tipo
+  </h3>
+
+  <div className="space-y-3">
+
+    {FILTER_TYPES.map((item) => {
+
+      const active = selectedType === item.name
+      const Icon = item.icon
+      return (
+        <button
+          key={item.name}
+          onClick={() =>
+  setSelectedType(
+    selectedType === item.name ? "" : item.name
+  )
+}
+          className={`w-full rounded-2xl border p-4 transition-all duration-300 text-left
+
+          ${
+            active
+              ? "border-gold-400 bg-gold-400/10"
+              : "border-white/10 bg-dark-700 hover:border-gold-400/50 hover:bg-dark-600"
+          }`}
+        >
+
+          <div className="flex items-center justify-between">
+
+            <div className="flex items-center gap-4">
+
+              <div
+  className={`h-12 w-12 rounded-xl flex items-center justify-center transition-all ${
+    active
+      ? "bg-gold-400/15 text-gold-400"
+      : "bg-white/5 text-white/60"
+  }`}
+>
+  <Icon size={24} strokeWidth={2} />
+</div>
+
+              <div>
+
+                <h4
+                  className={`font-semibold ${
+                    active ? "text-gold-400" : "text-white"
+                  }`}
                 >
-                  <span>✕</span> Limpar filtros
-                </button>
+                  {item.name}
+                </h4>
+
+                <p className="text-xs text-white/40 mt-1">
+                  {item.desc}
+                </p>
+
               </div>
+
             </div>
+
+            <div
+              className={`h-7 w-7 rounded-full flex items-center justify-center text-sm font-bold transition-all
+
+              ${
+                active
+                  ? "bg-gold-400 text-dark-900 scale-100"
+                  : "scale-0"
+              }`}
+            >
+              <Check size={18} strokeWidth={3} />
+            </div>
+
+          </div>
+
+        </button>
+      )
+
+    })}
+
+    <button
+      onClick={() => {
+        setSelectedType("")
+        setCategory("Todas as Camisetas")
+        setSearch("")
+      }}
+      className="w-full rounded-xl border border-red-500/20 py-3 text-sm text-red-400 hover:bg-red-500/10 transition"
+    >
+      Limpar filtros
+    </button>
+
+  </div>
+</div>
 
             <div>
               <div className="relative">
